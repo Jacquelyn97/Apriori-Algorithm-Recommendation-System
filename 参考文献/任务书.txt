@@ -1,4 +1,0 @@
-[1] Christofer Satria, Anthony Anggrawan, Mayadi. Recommendation System of Food Package Using Apriori and FP-Growth Data Mining Methods[J]. Journal of Advances in Information Technology, 2023, 14(3): 454‑462. Available at: https://www.jait.us/show-229-1340-1.html.
-[2] 陈帅. 微信订餐小程序的设计与实现[EB/OL]. Oreate AI Blog, 2025‑12‑22. Available at: https://www.oreateai.com/blog/design-and-implementation-of-a-wechat-food-ordering-mini-program/387292ad923bd0a905b67d13a21aa791.
-[3] Weixin Team. Weixin Mini Program Shopping Order[EB/OL]. Weixin Open Documentation. Available at: https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/en/business-capabilities/order_center/order_center.html.
-[4] Anish Singh Walia. Build a Flask Python Web App from Scratch[EB/OL]. DigitalOcean, 2025‑11‑06. Available at: https://www.digitalocean.com/community/tutorials/how-to-make-a-web-application-using-flask-in-python-3.
