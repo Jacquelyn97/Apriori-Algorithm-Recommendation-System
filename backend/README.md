@@ -58,6 +58,34 @@ python backend/app.py
 - 管理后台: `http://localhost:5000/admin`
 - 小程序 API: `http://localhost:5000/api/...`
 
+## Backend Screenshots
+
+### Login
+![Backend Login](../img/Flask/loginPage.png)
+
+### Dashboard
+![Backend Dashboard](../img/Flask/Dashboard.png)
+
+### Gold Match
+![Backend Gold Match](../img/Flask/GoldMatch1.png)
+
+### Realtime Sales
+![Backend Realtime Sales](../img/Flask/RealtimeSales1.png)
+
+## 后端页面截图
+
+### 登录页
+![后端登录页](../img/Flask/loginPage.png)
+
+### 数据看板
+![后端数据看板](../img/Flask/Dashboard.png)
+
+### 黄金搭配页
+![后端黄金搭配页](../img/Flask/GoldMatch1.png)
+
+### 实时销售页
+![后端实时销售页](../img/Flask/RealtimeSales1.png)
+
 ## Default Admin Credentials
 
 - Username: `admin`

@@ -106,37 +106,77 @@ npm run start
 
 ## Demo Screenshots
 
-### Current Images
+### Flask Backend UI
 
-- Backend/Flask screenshots are currently available in your local source document (`C:\Users\user\Downloads\img.docx`).
-- Existing repository images:
-  - Login: `blueprint/img/loginImg.png`
-  - ER Diagram: `E-R diagram.png`
+#### Login
+![Flask Login](img/Flask/loginPage.png)
 
-### Suggested Additional Screenshots
+#### Dashboard
+![Flask Dashboard](img/Flask/Dashboard.png)
 
-- Admin dashboard overview
-- Gold recommendation page
-- Segmentation page
-- Miniapp ordering page
-- Mobile app home/order page
+#### Gold Match (Recommendation)
+![Flask Gold Match 1](img/Flask/GoldMatch1.png)
+![Flask Gold Match 2](img/Flask/GoldMatch2.png)
+
+#### User Segmentation
+![Flask User Segmentation](img/Flask/UserSegmentation.png)
+
+#### Realtime Sales
+![Flask Realtime Sales](img/Flask/RealtimeSales1.png)
+
+### WeChat Mini Program UI
+
+#### Main / Product / Order
+![Miniapp Main Page](img/Miniapp/MainPage.jpg)
+![Miniapp Product Page](img/Miniapp/ProductPage.jpg)
+![Miniapp Order Page](img/Miniapp/OrderPage.jpg)
+
+#### User / History / Confirm
+![Miniapp Profile Page](img/Miniapp/ProfilePage.jpg)
+![Miniapp History Page](img/Miniapp/HistoryPage.jpg)
+![Miniapp Confirm Order](img/Miniapp/ConfirmOrder.jpg)
+
+### More Screenshots
+
+- More backend screenshots: `img/Flask/`
+- More miniapp screenshots: `img/Miniapp/`
 
 ## 演示截图说明
 
-### 当前已有图片
+### Flask 后端页面
 
-- 你本地的后端（Flask）效果图已在 `C:\Users\user\Downloads\img.docx` 中。
-- 仓库已包含图片：
-  - 登录页: `blueprint/img/loginImg.png`
-  - ER 图: `E-R diagram.png`
+#### 登录页
+![Flask 登录页](img/Flask/loginPage.png)
 
-### 建议补充图片
+#### 数据看板
+![Flask Dashboard](img/Flask/Dashboard.png)
 
-- 管理后台总览页
-- 黄金搭配推荐页
-- 用户分群页
-- 小程序下单页
-- 移动端首页/订单页
+#### 黄金搭配推荐页
+![Flask Gold Match 1](img/Flask/GoldMatch1.png)
+![Flask Gold Match 2](img/Flask/GoldMatch2.png)
+
+#### 用户分群页
+![Flask User Segmentation](img/Flask/UserSegmentation.png)
+
+#### 实时销售页
+![Flask Realtime Sales](img/Flask/RealtimeSales1.png)
+
+### 微信小程序页面
+
+#### 首页 / 商品页 / 下单页
+![小程序首页](img/Miniapp/MainPage.jpg)
+![小程序商品页](img/Miniapp/ProductPage.jpg)
+![小程序下单页](img/Miniapp/OrderPage.jpg)
+
+#### 个人中心 / 历史订单 / 取餐确认
+![小程序个人中心](img/Miniapp/ProfilePage.jpg)
+![小程序历史订单](img/Miniapp/HistoryPage.jpg)
+![小程序确认取餐](img/Miniapp/ConfirmOrder.jpg)
+
+### 更多截图
+
+- 更多 Flask 截图见：`img/Flask/`
+- 更多小程序截图见：`img/Miniapp/`
 
 ## Portfolio Highlights
 
