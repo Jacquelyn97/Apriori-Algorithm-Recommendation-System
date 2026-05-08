@@ -2,11 +2,13 @@
 __pycache__/
 *.py[cod]
 *.pyo
+.python-version
 .pytest_cache/
 .mypy_cache/
 .venv/
 venv/
 env/
+*.sqlite3
 
 # Node / React Native / Expo
 node_modules/
@@ -22,11 +24,25 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
 
 # Secrets / env
 .env
 .env.*
+*.pem
+*.key
 
 # Build artifacts
 dist/
 build/
+
+# Local app configs
+weapp/project.private.config.json
+
+# Portfolio cleanup: do not track office/source docs
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.pdf
