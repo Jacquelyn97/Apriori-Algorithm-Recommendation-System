@@ -1,0 +1,8 @@
+[1]余滔滔, 张革侠, 胡朝晖. 基于Apriori算法的菜品配置规则研究[J]. 服务科学与管理, 2019, 8(6): 234-239. https://pdf.hanspub.org/ssem20190600000_35412372.pdf.
+[2]崔亮, 郭静, 吴玲达. 一种基于动态散列和事务压缩的关联规则挖掘算法[J]. 计算机科学, 2015, 42(9): 41-44. http://dianda.cqvip.com/Qikan/Article/Detail?id=666063568&from=Qikan_Article_Detail.
+[3]陈建美. 关联规则在电商购物网站中的研究与应用[D]. 广州: 广东工业大学, 2016.
+[4]指纹浏览器. 基于改进Apriori算法的Web文档聚类方法研究（一）[EB/OL]. CSDN博客, 2025-08-15. https://blog.csdn.net/qqyy_sj/article/details/150420047.
+[5]Deng945201314. 基于关联规则算法的推荐系统与研究[EB/OL]. CSDN博客, 2025-07-11. https://blog.csdn.net/Deng945201314/article/details/149284307.
+[6]丁舟, 胡建成. 基于关联规则和多特征模型的微博好友推荐算法[J]. 应用数学进展, 2021, 10(10): 3283-3294. https://www.hanspub.org/journal/paperinformation?paperid=45948.
+[7]翟梦迪. 基于Apriori关联规则挖掘的消费者购房意向分析——以昆明市北市区为例[J]. 统计学与应用, 2016, 5(3): 215-224. https://www.hanspub.org/journal/paperinformation?paperid=18348.
+[8]汪敏, 朱习军. 基于改进的Apriori算法的关联规则分析[J]. 计算机科学与应用, 2021, 11(6): 1706-1716. https://www.hanspub.org/journal/paperinformation?paperid=43276.

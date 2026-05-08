@@ -1,0 +1,45 @@
+<view class="container" wx:if="{{order}}">
+  <view class="navBar" style="padding-top: {{statusBarHeight}}px">
+    <view class="navLeft" bindtap="goBack"><text class="navBack">‹</text></view>
+    <text class="navTitle">订单详情</text>
+    <view class="navRight"></view>
+  </view>
+  <scroll-view class="scroll" scroll-y>
+    <view class="scrollInner">
+      <view class="statusBanner" style="background: {{statusBg}}"><text class="statusText">{{order.status}}</text></view>
+      <view class="card">
+        <text class="sectionTitle">消费信息</text>
+        <view class="detailItemRow" wx:for="{{items}}" wx:key="id">
+          <view class="detailThumb">
+            <image class="detailThumbImg" src="{{item.imagePath}}" mode="aspectFill" wx:if="{{item.imagePath}}" />
+            <view class="detailThumbPlaceholder" wx:else><text>图</text></view>
+          </view>
+          <view class="detailItemInfo"><text class="detailItemName">{{item.name}}</text></view>
+          <view class="detailItemRight">
+            <text class="detailItemQty">x{{item.qty}}</text>
+            <text class="detailItemPrice">¥ {{item.lineTotal}}</text>
+          </view>
+        </view>
+        <view class="row"><text class="rowLabel">数量</text><text class="rowValue">x{{totalQty}}</text></view>
+        <view class="row"><text class="rowLabel">商品总额</text><text class="rowValue">¥ {{paymentAmount}}</text></view>
+        <view class="row"><text class="rowLabel">合计</text><text class="rowValue">¥ {{paymentAmount}}</text></view>
+        <view class="row"><text class="rowLabel">实际支付（线上支付）</text><text class="rowValueHighlight">¥ {{paymentAmount}}</text></view>
+        <view class="row"><text class="rowLabel">收款时间</text><text class="rowValue">{{paidTimeText}}</text></view>
+      </view>
+      <view class="card">
+        <text class="sectionTitle">订单信息</text>
+        <view class="row"><text class="rowLabel">订单编号</text><text class="rowValue">{{order.id}}</text></view>
+        <view class="row"><text class="rowLabel">创建时间</text><text class="rowValue">{{createTimeText}}</text></view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="footer" wx:if="{{isPendingPay}}"><view class="payBtn" bindtap="goPay">去支付</view></view>
+</view>
+<view class="container" wx:else>
+  <view class="navBar" style="padding-top: {{statusBarHeight}}px">
+    <view class="navLeft" bindtap="goBack"><text class="navBack">‹</text></view>
+    <text class="navTitle">订单详情</text>
+    <view class="navRight"></view>
+  </view>
+  <view class="emptyWrap"><text class="emptyText">未找到该订单</text></view>
+</view>

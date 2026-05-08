@@ -1,0 +1,90 @@
+<scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}" bindscrolltolower="">
+  <view class="headerWrapper">
+    <view class="headerBgOuter">
+      <image class="headerBg" src="/temp/programBackground.jpg" mode="aspectFill" />
+    </view>
+    <view class="pickRow">
+      <view
+        class="pickBtn"
+        bindtap="goSelf"
+        hover-class="pickBtn-hover"
+        hover-start-time="0"
+        hover-stay-time="80"
+      >
+        <image class="pickIcon" src="/assets/tea_cup.png" mode="aspectFit" />
+        <text class="pickText">门店自取</text>
+      </view>
+      <view
+        class="pickBtn"
+        bindtap="goDelivery"
+        hover-class="pickBtn-hover"
+        hover-start-time="0"
+        hover-stay-time="80"
+      >
+        <image class="pickIcon" src="/assets/take_away.png" mode="aspectFit" />
+        <text class="pickText">外卖点单</text>
+      </view>
+    </view>
+    <view class="noticeBar">
+      <image class="speaker" src="/assets/speaker.png" mode="aspectFit" />
+      <view class="noticeClip">
+        <view class="noticeScroll">
+          <text class="noticeText">本店新品上线，草莓芝士奶盖、芝士奶盖抹茶、火龙果椰香奶茶限时优惠，欢迎品尝～</text>
+          <text class="noticeText noticeTextDup">本店新品上线，草莓芝士奶盖、芝士奶盖抹茶、火龙果椰香奶茶限时优惠，欢迎品尝～</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="featureRow">
+    <view class="featureCard" style="background-color: rgb(230,235,222);">
+      <text class="featureText">奶茶团购</text>
+      <image class="featureIcon" src="/assets/group_buying.png" mode="aspectFit" />
+    </view>
+    <view class="featureCard" style="background-color: rgb(248,240,220);">
+      <text class="featureText">积分兑换</text>
+      <image class="featureIcon" src="/assets/point_redemption.png" mode="aspectFit" />
+    </view>
+    <view class="featureCard" style="background-color: rgb(247,231,222);">
+      <text class="featureText">互动抽奖</text>
+      <image class="featureIcon" src="/assets/lucky_draw.png" mode="aspectFit" />
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="sectionTitle">新品上市</text>
+    <view class="card" bindtap="goProduct" data-id="8">
+      <view class="cardImgWrapper">
+        <image class="cardImgTop" src="/temp/strawberry_milk.jpg" mode="aspectFill" />
+      </view>
+      <view class="cardInfo">
+        <text class="cardTag">热卖</text>
+        <text class="cardName">草莓芝士奶盖</text>
+        <text class="cardPrice">14元</text>
+        <view class="cardBtn"><text class="cardBtnText">立即下单 ></text></view>
+      </view>
+    </view>
+    <view class="card" bindtap="goProduct" data-id="2">
+      <view class="cardImgWrapper">
+        <image class="cardImgTop" src="/temp/cheese_milk.jpg" mode="aspectFill" />
+      </view>
+      <view class="cardInfo">
+        <text class="cardTag">热卖</text>
+        <text class="cardName">芝士奶盖抹茶</text>
+        <text class="cardPrice">14元</text>
+        <view class="cardBtn"><text class="cardBtnText">立即下单 ></text></view>
+      </view>
+    </view>
+    <view class="card" bindtap="goProduct" data-id="13">
+      <view class="cardImgWrapper">
+        <image class="cardImgTop" src="/temp/dragon_milk.jpg" mode="aspectFill" />
+      </view>
+      <view class="cardInfo">
+        <text class="cardTag">热卖</text>
+        <text class="cardName">火龙果椰香奶茶</text>
+        <text class="cardPrice">14元</text>
+        <view class="cardBtn"><text class="cardBtnText">立即下单 ></text></view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

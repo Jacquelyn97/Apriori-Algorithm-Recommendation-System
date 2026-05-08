@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Incomes{% endblock %}
+{% block nav_path %}Incomes{% endblock %}
+{% block nav_title %}Incomes{% endblock %}
+
+{% block content %}
+<style>
+    .card { margin-bottom: 20px; transition: transform 0.3s; }
+    .branch-card { background: var(--primary-gradient); color: #fff; padding: 24px; position: relative; overflow: hidden; }
+    .branch-card::after { content: "TEA"; position: absolute; right: -20px; bottom: -20px; font-size: 100px; font-weight: 800; opacity: 0.1; }
+    .branch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .branch-select { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; outline: none; }
+    .branch-select option { color: #344767; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; position: relative; z-index: 1; }
+    .info-label { opacity: 0.8; font-weight: 400; }
+    .info-value { font-weight: 700; text-align: right; }
+    .income-card { text-align: center; padding: 30px; }
+    .income-val { font-size: 32px; font-weight: 800; color: #82d616; margin: 10px 0; transition: 0.5s; }
+    .income-badge { background: #f0fdf4; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .view-all-btn { font-size: 12px; color: #cb0c9f; font-weight: 700; text-decoration: none; border: 1px solid #cb0c9f; padding: 2px 10px; border-radius: 6px; transition: 0.3s; }
+    .view-all-btn:hover { background: #cb0c9f; color: #fff; }
+    .view-btn { color: #344767; border: 1px solid #344767; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-decoration: none; transition: 0.3s; }
+    .view-btn:hover { background: #344767; color: #fff; }
+    .bank-select { width: 100%; border: 1px solid #e9ecef; padding: 8px; border-radius: 8px; margin-bottom: 15px; color: var(--text-main); font-weight: 600; outline: none; }
+    .stat-icon { width: 40px; height: 40px; background: var(--primary-gradient); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 15px; font-size: 20px; }
+    .order-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f8f9fa; font-size: 12px; }
+    .income-increment { color: #82d616; font-weight: 700; display: block; margin-top: 5px; animation: fadeInUp 1s infinite alternate; }
+    @keyframes fadeInUp { from { opacity: 0.5; transform: translateY(0); } to { opacity: 1; transform: translateY(-3px); } }
+</style>
+
+<div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 24px;">
+    <div style="display: flex; flex-direction: column;">
+        <div class="card branch-card">
+            <div class="branch-header">
+                <h2 style="font-size: 20px; margin:0">🌿 Tea Stories</h2>
+                <select class="branch-select" id="branchSelector" onchange="updateBranchInfo()">
+                    <option value="kuchai">Kuchai Lama</option>
+                    <option value="cheras">Cheras</option>
+                    <option value="sri">Sri Petaling</option>
+                </select>
+            </div>
+            <div class="info-row"><span class="info-label">Store ID</span><span class="info-value" id="disp-id">ST451256</span></div>
+            <div class="info-row"><span class="info-label">Register Date</span><span class="info-value" id="disp-date">24 March 1999</span></div>
+            <div class="info-row"><span class="info-label">Manager</span><span class="info-value" id="disp-manager">Stephanie Hu</span></div>
+        </div>
+        <div class="card income-card">
+            <div class="card-title" style="margin-bottom: 5px;">INCOME</div>
+            <div class="income-badge">Hourly Stats Update</div>
+            <div class="income-val" id="hourly-income">RM {{ month_revenue_formatted|default('0.00') }}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Current Month Cumulative Revenue</div>
+        </div>
+        <div class="card" id="bankArea">
+            <div class="card-title">BANK ACCOUNT</div>
+            <select class="bank-select" id="bankSelector" onchange="updateBankInfo()">
+                <option value="mb">Maybank</option>
+                <option value="pbb">Public Bank Berhad</option>
+                <option value="hlb">Hong Leong Bank</option>
+            </select>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 12px;">
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">ACCOUNT NUMBER</p>
+                <strong style="font-size: 18px; letter-spacing: 2px;" id="bank-num">5142 8890 1123 4556</strong>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="display: flex; flex-direction: column;">
+        <div class="card-header-flex">
+            <div class="card-title" style="margin:0">INVOICES</div>
+            <a href="#" class="view-all-btn">VIEW ALL</a>
+        </div>
+        <div style="flex: 1;">
+            {% set months = ['March', 'February', 'January', 'December', 'November', 'October', 'September', 'August'] %}
+            {% for month in months %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; {% if not loop.last %}border-bottom: 1px solid #f0f2f5;{% endif %}">
+                <div>
+                    <strong style="display: block; font-size: 13px;">{{ month }} 01, 2025</strong>
+                    <small style="color: var(--text-muted);">#MS-415{{ loop.index }}</small>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="#" style="color:#ea0606; font-weight:700; text-decoration:none; font-size:13px">PDF</a>
+                    <a href="#" class="view-btn">VIEW</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; align-items: start;">
+    <div class="card" style="height: 180px; display: flex; flex-direction: column;">
+        <div class="stat-icon">🏆</div>
+        <div class="card-title" style="margin-bottom:10px">BEST SCORE</div>
+        <div style="font-size: 28px; font-weight: 800; color: var(--text-main);">{{ best_score_volume_formatted|default('0') }}</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
+            Date &nbsp;&nbsp; <strong>{{ best_score_date|default('—') }}</strong>
+        </div>
+    </div>
+    <div class="card" style="height: 180px; display: flex; flex-direction: column; overflow: hidden;">
+        <div class="card-title">TODAY REAL-TIME</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0;">
+            <div style="max-height: 72px; overflow-y: auto;">
+                <div id="order-flow">
+                {% for o in (today_orders or []) %}
+                <div class="order-item"><span>#{{ o.order_no }}</span><strong>RM {{ "%.2f"|format(o.paid_amount or 0) }}</strong><span>{{ o.paid_at.strftime('%H:%M') if o.paid_at else '' }}</span></div>
+                {% endfor %}
+                {% if not today_orders or not today_orders|length %}
+                <div class="order-item" style="color:var(--text-muted);">今日暂无订单</div>
+                {% endif %}
+                </div>
+            </div>
+            <div style="text-align: right; display: flex; flex-direction: column; justify-content: flex-end;">
+                <p style="font-size: 12px; color: var(--text-muted); margin:0">TOTAL REVENUE</p>
+                <h2 style="font-size: 28px; font-weight: 800; margin: 5px 0;" id="total-income">RM {{ today_revenue_formatted|default('0.00') }}</h2>
+                <span id="increment-tag" class="income-increment"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const branchData = { sri: { id: "ST455486", date: "12 August 2015", manager: "Mike Wong" }, cheras: { id: "ST452162", date: "15 May 2011", manager: "Ryan Lee" }, kuchai: { id: "ST451256", date: "24 March 1999", manager: "Stephanie Hu" } };
+    function updateBranchInfo() { const val = document.getElementById('branchSelector').value; const data = branchData[val]; document.getElementById('disp-id').innerText = data.id; document.getElementById('disp-date').innerText = data.date; document.getElementById('disp-manager').innerText = data.manager; }
+    const bankData = { mb: "5142 8890 1123 4556", pbb: "3210 5546 7781 0092", hlb: "1099 2234 5567 8812" };
+    function updateBankInfo() { const val = document.getElementById('bankSelector').value; document.getElementById('bank-num').innerText = bankData[val]; }
+
+    var isAfterClosing = {{ 'true' if is_after_closing else 'false' }};
+    function refreshToday() {
+        fetch('/incomes/today').then(function(r) { return r.json(); }).then(function(data) {
+            var flow = document.getElementById('order-flow');
+            flow.innerHTML = '';
+            if (!data.orders || data.orders.length === 0) {
+                flow.innerHTML = '<div class="order-item" style="color:var(--text-muted);">今日暂无订单</div>';
+            } else {
+                data.orders.forEach(function(o) {
+                    var div = document.createElement('div');
+                    div.className = 'order-item';
+                    div.innerHTML = '<span>#' + (o.order_no || '') + '</span><strong>RM ' + (o.amount || 0).toFixed(2) + '</strong><span>' + (o.time || '') + '</span>';
+                    flow.appendChild(div);
+                });
+            }
+            document.getElementById('total-income').innerText = 'RM ' + (data.total_revenue != null ? data.total_revenue.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00');
+            if (data.month_revenue != null) {
+                document.getElementById('hourly-income').innerText = 'RM ' + data.month_revenue.toLocaleString(undefined, {minimumFractionDigits: 2});
+            }
+        }).catch(function() {});
+    }
+    if (!isAfterClosing) { setInterval(refreshToday, 5000); } else { refreshToday(); }
+</script>
+{% endblock %}

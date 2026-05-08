@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Tables{% endblock %}
+{% block nav_path %}Tables{% endblock %}
+{% block nav_title %}Tables{% endblock %}
+
+{% block content %}
+<div class="card" style="padding:0">
+    <div style="padding:20px"><div class="card-title">MANAGER TABLE</div></div>
+    <table style="width:100%; border-collapse:collapse; font-size:14px">
+        <thead style="background:#fafafa; text-align:left; color:var(--text-muted); font-size:11px">
+            <tr>
+                <th style="padding:15px 24px">MANAGER</th>
+                <th>DUTY IN</th>
+                <th>START ON</th>
+                <th>SALARY</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-top:1px solid #eee">
+                <td style="padding:15px 24px; display:flex; align-items:center; gap:10px">
+                    <div style="width:36px; height:36px; background:linear-gradient(135deg, #3a416f, #141727); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700">R</div>
+                    <div><strong>Ryan Lee</strong><br><small style="color:var(--text-muted)">ryan@teastory.com</small></div>
+                </td>
+                <td><span style="background:#e9ecef; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700">Cheras</span></td>
+                <td>09/03/2018</td>
+                <td><strong>RM 4,500</strong></td>
+                <td><a href="#" style="color:#cb0c9f; font-weight:700; text-decoration:none">Edit</a></td>
+            </tr>
+            <tr style="border-top:1px solid #eee">
+                <td style="padding:15px 24px; display:flex; align-items:center; gap:10px">
+                    <div style="width:36px; height:36px; background:linear-gradient(135deg, #7928ca, #ff0080); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700">M</div>
+                    <div><strong>Mike Wong</strong><br><small style="color:var(--text-muted)">mike@teastory.com</small></div>
+                </td>
+                <td><span style="background:#e9ecef; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700">Sri Petaling</span></td>
+                <td>15/11/2019</td>
+                <td><strong>RM 4,200</strong></td>
+                <td><a href="#" style="color:#cb0c9f; font-weight:700; text-decoration:none">Edit</a></td>
+            </tr>
+            <tr style="border-top:1px solid #eee">
+                <td style="padding:15px 24px; display:flex; align-items:center; gap:10px">
+                    <div style="width:36px; height:36px; background:linear-gradient(135deg, #2152ff, #21d4fd); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700">S</div>
+                    <div><strong>Sarah Tan</strong><br><small style="color:var(--text-muted)">sarah@teastory.com</small></div>
+                </td>
+                <td><span style="background:#e9ecef; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700">Kuchai Lama</span></td>
+                <td>02/01/2021</td>
+                <td><strong>RM 3,800</strong></td>
+                <td><a href="#" style="color:#cb0c9f; font-weight:700; text-decoration:none">Edit</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="padding:0">
+    <div style="padding:20px; display:flex; justify-content:space-between; align-items:center">
+        <div class="card-title">ORDER TABLE</div>
+        <div style="display:flex; align-items:center; gap:10px">
+            <span id="orderSummary" style="font-size:12px; color:var(--text-muted);"></span>
+            <span style="font-size:12px; font-weight:700; color:var(--text-muted)">Pick Date: </span>
+            <input type="date" id="datePicker" onchange="filterOrders()" style="background:#fff; color:var(--text-main); border:1px solid #ddd; padding:6px 10px; border-radius:8px; font-family: inherit; font-size: 13px; font-weight:600">
+        </div>
+    </div>
+    <div style="max-height: 420px; overflow-y: auto; border-top:1px solid #eee;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px">
+            <thead style="background:#fafafa; position:sticky; top:0; text-align:left; color:var(--text-muted); font-size:11px; z-index:1">
+                <tr>
+                    <th style="padding:15px 24px; background:#fafafa;">ORDER ID</th>
+                    <th style="background:#fafafa;">USER ID</th>
+                    <th style="background:#fafafa;">PRICE</th>
+                    <th style="background:#fafafa;">CITY / BRANCH</th>
+                    <th style="background:#fafafa;">TIME</th>
+                    <th style="background:#fafafa;">STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="orderTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function loadOrders(date) {
+        const tbody = document.getElementById('orderTableBody');
+        tbody.innerHTML = '<tr><td colspan=\"6\" style=\"padding:15px 24px; font-size:13px; color:var(--text-muted);\">Loading...</td></tr>';
+        fetch('/tables/orders?date=' + encodeURIComponent(date))
+            .then(res => res.json())
+            .then(data => {
+                tbody.innerHTML = '';
+                let total = 0;
+                if (!data.length) {
+                    tbody.innerHTML = '<tr><td colspan=\"6\" style=\"padding:15px 24px; font-size:13px; color:var(--text-muted);\">No orders on this day.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        total += row.amount || 0;
+                        const tr = document.createElement('tr');
+                        tr.style.borderTop = '1px solid #eee';
+                        tr.innerHTML =
+                            '<td style=\"padding:15px 24px\"><strong>' + row.order_no + '</strong></td>' +
+                            '<td>' + (row.user_id || '-') + '</td>' +
+                            '<td><strong>RM ' + (row.amount || 0).toFixed(2) + '</strong></td>' +
+                            '<td>' + (row.store || '-') + '</td>' +
+                            '<td>' + (row.time || '-') + '</td>' +
+                            '<td><a href=\"#\" style=\"color:#2152ff; font-weight:700; text-decoration:none\">Check</a></td>';
+                        tbody.appendChild(tr);
+                    });
+                }
+                const summary = document.getElementById('orderSummary');
+                summary.textContent = data.length + ' orders · RM ' + total.toFixed(2);
+            })
+            .catch(() => {
+                tbody.innerHTML = '<tr><td colspan=\"6\" style=\"padding:15px 24px; font-size:13px; color:#ea0606;\">Failed to load orders.</td></tr>';
+            });
+    }
+
+    window.onload = function() {
+        const dateInput = document.getElementById('datePicker');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+        loadOrders(today);
+    };
+
+    function filterOrders() {
+        const selectedDate = document.getElementById('datePicker').value;
+        if (!selectedDate) return;
+        loadOrders(selectedDate);
+    }
+</script>
+{% endblock %}

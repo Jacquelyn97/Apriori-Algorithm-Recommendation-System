@@ -1,0 +1,74 @@
+<view class="container">
+  <view class="navBar" style="padding-top: {{statusBarHeight}}px">
+    <view class="navLeft" bindtap="goBack"><text class="navBack">‹</text></view>
+    <text class="navTitle">收货地址</text>
+    <view class="navRight"></view>
+  </view>
+  <scroll-view class="scroll" scroll-y>
+    <view class="scrollInner">
+      <view class="actionRow">
+        <block wx:if="{{manageMode}}">
+          <view class="actionBtn danger" bindtap="exitManage">退出管理</view>
+        </block>
+        <block wx:else>
+          <view class="actionBtn" bindtap="toggleManage">管理</view>
+          <view class="actionBtn primary" bindtap="addAddress">新增地址</view>
+        </block>
+      </view>
+    <block wx:if="{{manageMode}}">
+      <view class="cardManage" wx:for="{{addresses}}" wx:key="id">
+        <view class="checkboxWrap" data-id="{{item.id}}" bindtap="toggleSelect">
+          <view class="checkboxEmpty" wx:if="{{selectedIds.indexOf(item.id) < 0}}" />
+          <view class="checkboxChecked" wx:else><text class="checkboxCheck">✓</text></view>
+        </view>
+        <view class="cardManageMain">
+          <view class="topRow">
+            <text class="region">{{item.region}}</text>
+            <view class="editIconWrap" data-id="{{item.id}}" bindtap="editAddress"><text class="editIcon">✎</text></view>
+          </view>
+          <text class="street">{{item.street}}</text>
+          <view class="nameRow">
+            <text class="name">{{item.name}}</text>
+            <text class="phone"> {{item.phone}}</text>
+            <view class="defaultTag" wx:if="{{item.isDefault}}"><text class="defaultText">default</text></view>
+          </view>
+          <view class="defaultDeleteRow">
+            <view class="defaultRow" data-id="{{item.id}}" bindtap="setDefault">
+              <text class="defaultLabel">默认</text>
+              <view class="radioEmpty" wx:if="{{!item.isDefault}}" />
+              <view class="defaultCheckWrap" wx:else><text class="defaultCheck">✓</text></view>
+            </view>
+            <view class="deleteBtn" data-id="{{item.id}}" bindtap="deleteOne"><text class="deleteBtnText">删除</text></view>
+          </view>
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="card" wx:for="{{addresses}}" wx:key="id" data-addr="{{item}}" bindtap="onSelect">
+        <view class="cardMain">
+          <text class="region">{{item.region}}</text>
+          <text class="street">{{item.street}}</text>
+          <view class="nameRow">
+            <text class="name">{{item.name}}</text>
+            <text class="phone"> {{item.phone}}</text>
+            <view class="defaultTag" wx:if="{{item.isDefault}}"><text class="defaultText">default</text></view>
+          </view>
+        </view>
+        <view class="radioWrap">
+          <view class="radioEmpty" wx:if="{{selectedId !== item.id}}" />
+          <view class="radioChecked" wx:else><text class="radioCheck">✓</text></view>
+        </view>
+      </view>
+    </block>
+    <text class="endHint">到底啦</text>
+    </view>
+  </scroll-view>
+  <view class="footer" wx:if="{{manageMode}}">
+    <view class="selectAllRow" bindtap="selectAll">
+      <view class="checkboxEmpty" wx:if="{{selectedIds.length < addresses.length || addresses.length === 0}}" />
+      <view class="checkboxChecked" wx:elif="{{addresses.length > 0}}"><text class="checkboxCheck">✓</text></view>
+      <text class="selectAllText">全选</text>
+    </view>
+    <view class="bulkDeleteBtn {{selectedIds.length === 0 ? 'disabled' : ''}}" bindtap="bulkDelete">删除</view>
+  </view>
+</view>

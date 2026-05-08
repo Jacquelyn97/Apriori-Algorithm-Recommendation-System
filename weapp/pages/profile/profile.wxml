@@ -1,0 +1,54 @@
+<scroll-view class="scroll" scroll-y>
+  <view class="memberCard">
+    <view class="memberTopRow">
+      <view class="memberUserRow">
+        <image class="avatar" src="/assets/user.png" />
+        <view>
+          <view class="nameRow">
+            <text class="username">会员昵称</text>
+            <image class="genderIcon" src="/assets/male.png" />
+          </view>
+          <text class="cardNo">A888 8888</text>
+        </view>
+      </view>
+      <image class="qrIcon" src="/assets/qr-code.png" />
+    </view>
+    <view class="memberBottomRow">
+      <text class="memberTag">专享更多等级权益</text>
+      <text class="moreText">了解详情 ></text>
+    </view>
+  </view>
+  <view class="vipStrip">
+    <view class="vipLeft">
+      <image class="vipIcon" src="/assets/crown.png" />
+      <view>
+        <text class="vipTitle">示例会员卡</text>
+        <text class="vipSubTitle">开通即得·元余额，尊享权益</text>
+      </view>
+    </view>
+    <view class="vipBtn"><text class="vipBtnText">开通</text></view>
+  </view>
+  <view class="summaryRow">
+    <view class="summaryItem">
+      <image class="summaryIcon" src="/assets/score.png" />
+      <text class="summaryNumber">0</text>
+      <text class="summaryLabel">积分</text>
+    </view>
+    <view class="summaryItem">
+      <image class="summaryIcon" src="/assets/credit-card.png" />
+      <text class="summaryNumber">0</text>
+      <text class="summaryLabel">卡项</text>
+    </view>
+    <view class="summaryItem">
+      <image class="summaryIcon" src="/assets/discount.png" />
+      <text class="summaryNumber">0</text>
+      <text class="summaryLabel">优惠券</text>
+    </view>
+  </view>
+  <view class="menuCard">
+    <view class="menuRow" bindtap="goOrder"><view class="menuLeft"><image class="menuIcon" src="/assets/p-myOrder.png" /><text class="menuText">我的订单</text></view><text class="menuArrow">›</text></view>
+    <view class="menuRow" bindtap="goAddress"><view class="menuLeft"><image class="menuIcon" src="/assets/p-address.png" /><text class="menuText">收货地址</text></view><text class="menuArrow">›</text></view>
+    <view class="menuRow" bindtap="goCart"><view class="menuLeft"><image class="menuIcon" src="/assets/p-cart.png" /><text class="menuText">购物车</text></view><text class="menuArrow">›</text></view>
+    <view class="menuRow"><view class="menuLeft"><image class="menuIcon" src="/assets/p-vipCard.png" /><text class="menuText">我的会员卡</text></view><text class="menuArrow">›</text></view>
+  </view>
+</scroll-view>

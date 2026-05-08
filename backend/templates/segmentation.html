@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}User Segmentation{% endblock %}
+{% block nav_path %}User Segmentation{% endblock %}
+{% block nav_title %}User Segmentation{% endblock %}
+
+{% block content %}
+<style>
+    .seg-section { margin-bottom: 28px; }
+    .seg-section .card-title { margin-bottom: 8px; }
+    .seg-section .mini { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+    .chart-wrap { height: 360px; position: relative; }
+    .chart-wrap canvas { max-height: 100%; }
+    .feature-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .feature-table th, .feature-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #eef2f6; }
+    .feature-table th { color: var(--text-muted); font-weight: 600; background: #f8fafc; }
+    .feature-table tbody tr:nth-child(even) { background: #fafbfc; }
+    .feature-table tbody tr:hover { background: #f1f5f9; }
+    .feature-table .seg-cell { position: relative; padding-left: 20px; }
+    .feature-table .seg-bar { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 60%; border-radius: 2px; }
+    .feature-table .pct-bar { display: inline-block; height: 6px; border-radius: 3px; background: #e2e8f0; min-width: 40px; margin-right: 6px; vertical-align: middle; }
+    .feature-table .pct-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #7928ca, #0e7490); }
+    .sankey-wrap { min-height: 220px; max-height: 260px; overflow-y: auto; padding: 16px 0; }
+    .sankey-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+    .sankey-from { min-width: 130px; font-weight: 600; color: #334155; font-size: 13px; }
+    .sankey-bar { height: 28px; border-radius: 6px; background: linear-gradient(90deg, #7928ca, #a855f7, #ec4899); box-shadow: 0 1px 3px rgba(0,0,0,0.08); min-width: 24px; transition: width 0.2s ease; }
+    .sankey-to { min-width: 130px; font-size: 13px; color: #64748b; }
+    .sankey-value { font-weight: 700; color: #7928ca; margin-left: 10px; min-width: 48px; }
+    .two-col-seg { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
+    @media (max-width: 900px) { .two-col-seg { grid-template-columns: 1fr; } }
+</style>
+
+<div class="seg-section card">
+    <div class="card-title">(A) RFM 分群散点图</div>
+    <p class="mini">基于 R(最近消费天数)、F(消费次数)、M(消费金额) 的 K-Means 聚类；每点为一用户，颜色为所属群体。</p>
+    <div class="chart-wrap"><canvas id="rfmScatter"></canvas></div>
+</div>
+
+<div class="two-col-seg">
+    <div class="seg-section card">
+        <div class="card-title">(B) 用户群体雷达图</div>
+        <p class="mini">各群体在 消费频率、客单价、品类偏好、活跃时段 上的相对表现（归一化 0–100）。</p>
+        <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+    <div class="seg-section card">
+        <div class="card-title">(C) 群体消费特征对比</div>
+        <p class="mini">各群体人数、占比、客单价、复购率、最爱品类与时段。</p>
+        <div style="max-height: 340px; overflow: auto;">
+            <table class="feature-table">
+                <thead>
+                    <tr>
+                        <th>群体</th>
+                        <th>人数</th>
+                        <th>占比</th>
+                        <th>客单价</th>
+                        <th>复购率</th>
+                        <th>最爱品类</th>
+                        <th>最爱时段</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in (summary or []) %}
+                    <tr>
+                        <td class="seg-cell">
+                            <span class="seg-bar" style="background: {{ ['#7928ca','#0e7490','#65a30d','#ea580c','#9f1239'][loop.index0 % 5] }};"></span>
+                            <strong>{{ s.segment }}</strong>
+                        </td>
+                        <td>{{ s.cnt }}</td>
+                        <td>
+                            <span class="pct-bar" style="width: 80px;"><span class="pct-fill" style="width: {{ [s.pct, 100]|min }}%;"></span></span>
+                            {{ s.pct }}%
+                        </td>
+                        <td>¥{{ s.avg_order_amount }}</td>
+                        <td>{{ s.repurchase_rate }}%</td>
+                        <td>{{ s.favorite_category }}</td>
+                        <td>{{ s.favorite_timeslot }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not summary or not summary|length %}
+            <p class="mini" style="padding:16px;">暂无分群数据，请确保有订单数据。</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="seg-section card">
+    <div class="card-title">(D) 群体迁移桑基图</div>
+    <p class="mini">上期(30–60天前) 到 本期(最近30天) 的用户群体流向，用于发现流失风险、评估运营效果。条带宽度表示迁移人数。</p>
+    <div class="sankey-wrap" id="sankeyContainer">
+        {% for link in (migration_links or []) %}
+        {% set w = [24 + (link.value / (max_migration_value or 1) * 220)|int, 240]|min %}
+        <div class="sankey-row">
+            <span class="sankey-from">{{ link.from }}</span>
+            <span class="sankey-bar" style="width: {{ w }}px;"></span>
+            <span class="sankey-to">{{ link.to }}</span>
+            <span class="sankey-value">{{ link.value }} 人</span>
+        </div>
+        {% endfor %}
+        {% if not migration_links or not migration_links|length %}
+        <p class="mini" style="padding:16px;">暂无两期重叠用户，无法生成迁移。</p>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    const rfmPoints = {{ (rfm_points or [])|tojson }};
+    const radarDatasets = {{ (radar_datasets or [])|tojson }};
+    const segmentColors = ['#7c3aed','#0d9488','#65a30d','#ea580c','#be123c'];
+
+    // (A) RFM 散点图
+    if (rfmPoints.length && document.getElementById('rfmScatter')) {
+        const bySeg = {};
+        rfmPoints.forEach(function (p) {
+            const s = p.segment || '其他';
+            if (!bySeg[s]) bySeg[s] = [];
+            bySeg[s].push({ x: p.x, y: p.y });
+        });
+        const order = ['高价值忠诚群','新锐潜力群','价格敏感群','高价值流失群','沉睡流失群'];
+        const segOrder = order.filter(function (o) { return bySeg[o]; }).concat(Object.keys(bySeg).filter(function (k) { return order.indexOf(k) === -1; }));
+        const datasets = segOrder.map(function (seg, i) {
+            return {
+                label: seg,
+                data: bySeg[seg],
+                backgroundColor: segmentColors[i % segmentColors.length] + 'cc',
+                borderColor: segmentColors[i % segmentColors.length],
+                borderWidth: 1.5,
+                pointRadius: 6,
+                pointHoverRadius: 9,
+                pointHoverBorderWidth: 2
+            };
+        });
+        new Chart(document.getElementById('rfmScatter'), {
+            type: 'scatter',
+            data: { datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'R (最近消费天数)' },
+                        min: 0,
+                        grid: { color: 'rgba(0,0,0,0.06)' },
+                        ticks: { maxTicksLimit: 10 }
+                    },
+                    y: {
+                        title: { display: true, text: 'M (消费金额)' },
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.06)' },
+                        ticks: { maxTicksLimit: 10 }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 16 } },
+                    tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': R=' + ctx.parsed.x + ', M=' + ctx.parsed.y; } } }
+                }
+            }
+        });
+    }
+
+    // (B) 雷达图
+    if (radarDatasets.length && document.getElementById('radarChart')) {
+        const radarLabels = ['消费频率', '客单价', '品类偏好', '活跃时段'];
+        const datasets = radarDatasets.map(function (d) {
+            const c = d.color || '#7928ca';
+            const rgba = c.startsWith('rgb') ? c.replace(')', ', 0.25)').replace('rgb', 'rgba') : (c + '40');
+            return {
+                label: d.segment,
+                data: d.values,
+                fill: true,
+                backgroundColor: rgba,
+                borderColor: c,
+                borderWidth: 2,
+                pointBackgroundColor: c,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            };
+        });
+        new Chart(document.getElementById('radarChart'), {
+            type: 'radar',
+            data: { labels: radarLabels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 100,
+                        grid: { color: 'rgba(0,0,0,0.08)' },
+                        angleLines: { color: 'rgba(0,0,0,0.1)' },
+                        pointLabels: { font: { size: 12 } }
+                    }
+                },
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 12 } } }
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

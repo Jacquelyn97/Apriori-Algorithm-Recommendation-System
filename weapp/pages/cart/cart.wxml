@@ -1,0 +1,37 @@
+<view class="container">
+  <view class="navBar" style="padding-top: {{statusBarHeight}}px">
+    <view class="navLeft" bindtap="goBack"><text class="navBack">‹</text></view>
+    <view class="navTitle">购物车</view>
+    <view class="navRight"></view>
+  </view>
+
+  <scroll-view class="scroll" scroll-y>
+    <view class="scrollInner">
+      <view class="empty" wx:if="{{cart.length === 0}}"><text class="emptyText">购物车为空</text></view>
+      <view class="row" wx:for="{{cart}}" wx:key="id">
+        <view class="thumbWrap">
+          <image class="thumbImg" src="{{item.imagePath}}" mode="aspectFill" wx:if="{{item.imagePath}}" />
+          <view class="thumbPlaceholder" wx:else><text>图</text></view>
+        </view>
+        <view class="info">
+          <text class="name">{{item.name}}</text>
+          <text class="price">¥ {{item.priceFixed}}</text>
+          <view class="controls">
+            <view class="stepBtn" bindtap="dec" data-index="{{index}}">-</view>
+            <text class="qty">{{item.qty}}</text>
+            <view class="stepBtn stepBtnAdd" bindtap="inc" data-index="{{index}}">+</view>
+            <view class="removeBtn" bindtap="remove" data-id="{{item.id}}"><text class="removeText">删除</text></view>
+          </view>
+        </view>
+        <text class="subTotal">¥ {{item.subTotal}}</text>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="footer">
+    <view>
+      <text class="footerLine">共 {{totalQty}} 件</text>
+      <text class="footerTotal">合计 <text class="footerTotalNum">¥ {{totalPrice}}</text></text>
+    </view>
+    <view class="payBtn {{totalQty === 0 ? 'disabled' : ''}}" bindtap="goCheckout">去下单</view>
+  </view>
+</view>

@@ -1,0 +1,181 @@
+/* pages/index/index.wxss */
+.scroll {
+  height: 100vh;
+  background-color: rgb(179, 198, 170);
+}
+.headerWrapper {
+  padding: 0 24rpx;
+  padding-top: 0;
+}
+.headerBgOuter {
+  width: 100%;
+  margin-left: -24rpx;
+  margin-right: -24rpx;
+  width: calc(100% + 48rpx);
+  margin-left: -24rpx;
+}
+.headerBg {
+  width: 100%;
+  height: 440rpx;
+}
+.pickRow {
+  display: flex;
+  flex-direction: row;
+  margin-top: -40rpx;
+  padding: 0 48rpx;
+  justify-content: space-between;
+}
+.pickBtn {
+  flex: 1;
+  margin: 0 20rpx;
+  background-color: #fff;
+  border-radius: 40rpx;
+  padding: 50rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.08);
+}
+.pickBtn-hover {
+  transform: scale(0.97);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.15);
+  opacity: 0.96;
+}
+.pickIcon {
+  width: 100rpx;
+  height: 100rpx;
+  margin-bottom: 18rpx;
+}
+.pickText {
+  font-size: 36rpx;
+  color: #333;
+}
+.noticeBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 36rpx;
+  margin-left: 40rpx;
+  margin-right: 40rpx;
+  border-radius: 40rpx;
+  background-color: #fff;
+  padding: 8rpx 18rpx;
+}
+.speaker {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 12rpx;
+}
+.noticeClip {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+.noticeScroll {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: noticeMarquee 12s linear infinite;
+}
+.noticeText {
+  font-size: 24rpx;
+  color: #555;
+  flex-shrink: 0;
+  padding-right: 80rpx;
+}
+.noticeTextDup {
+  padding-right: 0;
+}
+@keyframes noticeMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.featureRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 48rpx;
+  padding: 0 24rpx;
+}
+.featureCard {
+  flex: 1;
+  margin: 0 8rpx;
+  border-radius: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 0;
+}
+.featureText {
+  font-size: 36rpx;
+  color: #444;
+  margin-bottom: 12rpx;
+}
+.featureIcon {
+  width: 100rpx;
+  height: 100rpx;
+}
+.section {
+  margin-top: 32rpx;
+  padding: 0 24rpx;
+  padding-bottom: 48rpx;
+}
+.sectionTitle {
+  font-size: 35rpx;
+  font-weight: 700;
+  color: #2d4a2e;
+  letter-spacing: 4rpx;
+  margin-bottom: 32rpx;
+  padding: 0 8rpx;
+}
+.card {
+  display: flex;
+  flex-direction: row;
+  background-color: #fff;
+  border-radius: 40rpx;
+  overflow: hidden;
+  margin-bottom: 24rpx;
+}
+.cardImgWrapper {
+  width: 260rpx;
+  height: 220rpx;
+  overflow: hidden;
+}
+.cardImgTop {
+  width: 100%;
+  height: 260rpx;
+  margin-top: -20rpx;
+}
+.cardInfo {
+  flex: 1;
+  padding: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.cardTag {
+  font-size: 26rpx;
+  color: #ff6a00;
+  margin-bottom: 8rpx;
+}
+.cardName {
+  font-size: 40rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+.cardPrice {
+  font-size: 28rpx;
+  color: #e91e63;
+  font-weight: 700;
+}
+.cardBtn {
+  align-self: flex-start;
+  margin-top: 8rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid #e91e63;
+  padding: 8rpx 20rpx;
+}
+.cardBtnText {
+  font-size: 24rpx;
+  color: #e91e63;
+}

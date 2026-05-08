@@ -1,0 +1,27 @@
+<view class="container">
+  <scroll-view class="scroll" scroll-y>
+    <view class="contentInner">
+      <view class="card">
+        <view class="headerRow">
+          <text class="headerTitle">选择自取门店</text>
+        </view>
+        <view class="storeRow" wx:for="{{stores}}" wx:key="id" data-id="{{item.id}}" bindtap="selectStore">
+          <view class="storeInfoRow">
+            <image class="storeIcon" src="/assets/store.png" mode="aspectFit" />
+            <view class="storeInfo">
+              <text class="storeName">{{item.name}}</text>
+              <view class="storeAddressRow">
+                <text class="storeAddress">{{item.address}}</text>
+                <text class="storeDistance">{{item.distanceText}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="storeRadio {{selectedStoreId === item.id ? 'checked' : ''}}">
+            <view class="storeRadioInner" wx:if="{{selectedStoreId === item.id}}"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+

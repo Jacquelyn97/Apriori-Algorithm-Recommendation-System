@@ -1,0 +1,24 @@
+<view class="container">
+  <view class="navBar" style="padding-top: {{statusBarHeight}}px">
+    <view class="navLeft" bindtap="goBack"><text class="navBack">‹</text></view>
+    <text class="navTitle">{{isEdit ? '编辑地址' : '新增地址'}}</text>
+    <view class="navRight"></view>
+  </view>
+  <scroll-view class="scroll" scroll-y>
+    <view class="scrollInner">
+      <text class="label">省/州/区</text>
+      <input class="input" placeholder="例如 Malaysia Selangor Seri Kembangan" value="{{region}}" bindinput="onRegionInput" />
+      <text class="label">街道门牌</text>
+      <input class="input" placeholder="例如 2 Jalan Bunga 1/5 Taman Bunga Raya" value="{{street}}" bindinput="onStreetInput" />
+      <text class="label">收货人</text>
+      <input class="input" placeholder="姓名" value="{{name}}" bindinput="onNameInput" />
+      <text class="label">手机号</text>
+      <input class="input" type="number" placeholder="手机号" value="{{phone}}" bindinput="onPhoneInput" />
+      <view class="row">
+        <text class="label">设为默认地址</text>
+        <switch checked="{{isDefault}}" color="#ff9500" bindchange="onDefaultChange" />
+      </view>
+      <view class="btn" bindtap="save">保存</view>
+    </view>
+  </scroll-view>
+</view>

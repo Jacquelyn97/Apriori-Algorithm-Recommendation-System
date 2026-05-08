@@ -1,0 +1,170 @@
+<view class="container">
+  <view class="header">
+    <view class="headerRow">
+      <text class="storeText">奶茶馆 ></text>
+      <view class="modeWrap">
+        <view class="modeBtn {{deliveryMode === 'self' ? 'modeBtnActive' : ''}}" bindtap="setSelf">自取</view>
+        <view class="modeBtn {{deliveryMode === 'delivery' ? 'modeBtnActive' : ''}}" bindtap="setDelivery">外卖</view>
+      </view>
+    </view>
+    <view class="couponRow">
+      <view class="couponTags">
+        <text class="couponTag">满99减25</text>
+        <text class="couponTag">满100享8折</text>
+      </view>
+      <text class="couponLink">去领券 ></text>
+    </view>
+  </view>
+  <view class="navRow">
+    <view class="navTabs">
+      <view
+        class="navTab {{mainTab === 'order' ? 'navTabActive' : ''}}"
+        data-tab="order"
+        bindtap="switchMainTab"
+      >点餐</view>
+      <view
+        class="navTab {{mainTab === 'review' ? 'navTabActive' : ''}}"
+        data-tab="review"
+        bindtap="switchMainTab"
+      >评价</view>
+      <view
+        class="navTab {{mainTab === 'store' ? 'navTabActive' : ''}}"
+        data-tab="store"
+        bindtap="switchMainTab"
+      >商店</view>
+    </view>
+    <input
+      class="searchBar"
+      placeholder="请输入商品名称"
+      value="{{searchQ}}"
+      bindinput="onSearch"
+      wx:if="{{mainTab === 'order'}}"
+    />
+  </view>
+  <view class="contentWrap">
+    <view class="bodyRow" wx:if="{{mainTab === 'order'}}">
+    <view class="categoryWrap">
+      <scroll-view class="categoryCol" scroll-y enhanced>
+        <view
+          class="categoryItem {{activeCatId === item.id ? 'categoryItemActive' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onSelectCategory"
+        >
+          <text class="categoryText">{{item.name}}</text>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="productWrap">
+      <scroll-view
+        class="productCol"
+        scroll-y
+        enhanced
+        scroll-into-view="{{scrollIntoViewId}}"
+        bindscroll="onProductScroll"
+      >
+        <block wx:for="{{sectioned}}" wx:key="cat.id">
+          <view id="section-{{item.cat.id}}" class="sectionBlock" wx:if="{{item.items.length > 0}}">
+            <view class="sectionHeaderRow">
+              <text class="sectionHeaderMain">{{item.cat.sectionTitle}}</text>
+            </view>
+            <view class="productList">
+              <view
+                class="productRow"
+                wx:for="{{item.items}}"
+                wx:for-item="p"
+                wx:key="id"
+                bindtap="goDetail"
+                data-id="{{p.id}}"
+              >
+                <view class="productImgWrap">
+                  <image class="productImg" src="{{p.imagePath}}" mode="aspectFill" wx:if="{{p.imagePath}}" />
+                  <view class="productImgPlaceholder" wx:else><text class="placeholderText">图</text></view>
+                </view>
+                <view class="productInfo">
+                  <text class="productName">{{p.name}}</text>
+                  <text class="productPrice">¥ {{p.price}}</text>
+                </view>
+                <view class="productAdd">
+                  <text class="productAddText">＋</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+        <view class="emptyRow" wx:if="{{hasNoResults}}"><text class="emptyText">暂无匹配商品</text></view>
+      </scroll-view>
+    </view>
+  </view>
+  <view class="tabPanel" wx:elif="{{mainTab === 'review'}}">
+    <scroll-view class="reviewScroll" scroll-y enhanced>
+      <block wx:for="{{reviews}}" wx:key="id">
+        <view class="reviewItem">
+          <image class="reviewAvatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="reviewContent">
+            <view class="reviewHeader">
+              <text class="reviewName">{{item.nickname}}</text>
+              <text class="reviewDate">{{item.date}}</text>
+            </view>
+            <view class="reviewStars">
+              <text
+                class="reviewStar"
+                wx:for="{{starBase}}"
+                wx:key="*this"
+              >{{index < item.rating ? '★' : '☆'}}</text>
+            </view>
+            <text class="reviewText">{{item.content}}</text>
+          </view>
+        </view>
+      </block>
+      <view class="reviewMoreRow" bindtap="onViewAllReviews">
+        <text class="reviewMoreText">查看全部评论</text>
+      </view>
+    </scroll-view>
+  </view>
+  <view class="tabPanel" wx:elif="{{mainTab === 'store'}}">
+    <scroll-view class="storeScroll" scroll-y enhanced>
+      <view class="storeBlock">
+        <view class="storeSectionHead">
+          <view class="storeSectionBar"></view>
+          <text class="storeSectionTitle">配送信息</text>
+        </view>
+        <view class="deliveryRow">
+          <text class="deliveryLabel">起送</text>
+          <text class="deliveryValue">最低 ¥{{storeInfo.minOrder}}起送</text>
+        </view>
+        <view class="deliveryRow">
+          <text class="deliveryLabel">配送</text>
+          <text class="deliveryValue">配送费: ¥{{storeInfo.deliveryFee}}</text>
+        </view>
+      </view>
+      <view class="storeBlock">
+        <view class="storeSectionHead">
+          <view class="storeSectionBar"></view>
+          <text class="storeSectionTitle">店铺信息</text>
+        </view>
+        <view class="storeInfoRow">
+          <image class="storeInfoIcon" src="/assets/location.png" mode="aspectFit" />
+          <text class="storeInfoText">{{storeInfo.address}}</text>
+        </view>
+        <view class="storeInfoRow">
+          <image class="storeInfoIcon" src="/assets/alarm-clock.png" mode="aspectFit" />
+          <text class="storeInfoText">{{storeInfo.hours}}</text>
+        </view>
+        <view class="storeInfoRow">
+          <image class="storeInfoIcon" src="/assets/telephone.png" mode="aspectFit" />
+          <text class="storeInfoText">{{storeInfo.phone}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  </view>
+  <view class="footer">
+    <view class="cartInfo" bindtap="goCart">
+      <image class="cartIcon" src="/assets/cart.png" mode="aspectFit" />
+      <text class="cartLabel">{{totalQty === 0 ? '未选购商品' : '已选 ' + totalQty + ' 件  ¥' + totalPrice}}</text>
+    </view>
+    <view class="submitBtn {{totalQty > 0 ? '' : 'disabled'}}" bindtap="goCheckout">结算</view>
+  </view>
+</view>

@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% block title %}Gold Match{% endblock %}
+{% block nav_path %}Gold Match{% endblock %}
+{% block nav_title %}Gold Match{% endblock %}
+
+{% block content %}
+<style>
+    .item-badge { display: inline-block; padding: 4px 10px; background: #f0f2f5; border-radius: 8px; margin: 2px; font-size: 13px; }
+    .score { color: #ff0080; font-weight: 700; }
+    .tabs { display: inline-flex; background: #f0f2f5; border-radius: 10px; padding: 4px; gap: 4px; }
+    .tab { border: 0; background: transparent; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #344767; cursor: pointer; }
+    .tab.active { background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.06); color: #7928ca; }
+    .mini { font-size: 12px; color: var(--text-muted); }
+    .two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
+    @media (max-width: 1000px) { .two-col { grid-template-columns: 1fr; } }
+    .bundle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 1100px) { .bundle-grid { grid-template-columns: 1fr; } }
+    .bundle-card { border: 1px solid #f0f2f5; border-radius: 14px; padding: 16px; background: #fff; }
+    .bundle-title { font-weight: 800; margin: 0 0 10px; display: flex; gap: 10px; align-items: center; }
+    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; background: #fdf2f8; color: #be185d; }
+    .metric-row { display:flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+    .top-list { display:grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    @media (max-width: 1100px) { .top-list { grid-template-columns: repeat(2, 1fr); } }
+    .top-item { border: 1px solid #f0f2f5; border-radius: 14px; padding: 12px; background: #fff; }
+    .top-item strong { display:block; font-size: 13px; margin-bottom: 6px; color: #111827; }
+    .top-item .mini { display:flex; justify-content: space-between; gap: 10px; }
+    .listbox { max-height: 220px; overflow: auto; border-top: 1px solid #f0f2f5; margin-top: 12px; padding-top: 10px; }
+    .list-row { display:flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f8f9fa; font-size: 13px; }
+    .list-row:last-child { border-bottom: 0; }
+    .graph-wrap { height: 320px; border: 1px solid #f0f2f5; border-radius: 14px; overflow: hidden; background: radial-gradient(circle at 20% 20%, rgba(121,40,202,0.06), transparent 40%), #fff; }
+    .graph-wrap svg { width: 100%; height: 100%; font-family: system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    .graph-wrap text { font-size: 12px; font-weight: 600; }
+    .legend { display:flex; gap: 12px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+</style>
+
+<div class="two-col" style="margin-bottom: 24px;">
+    <div class="card">
+        <div class="card-title">商品关联网络图</div>
+        <p class="mini">每个节点代表一个商品；连线越粗表示越常一起被购买，部分高频搭配会用更亮、更粗的线条高亮显示。</p>
+        <div class="graph-wrap" id="assocGraph"></div>
+        <div class="legend">
+            <span class="mini"><span class="dot" style="background:#7928ca"></span> 商品</span>
+            <span class="mini"><span class="dot" style="background:#ff0080"></span> 高频关联</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">强规则表格（支持度 / 置信度 / 提升度）</div>
+        <p class="mini">仅展示较强的搭配规则，帮助设计套餐与陈列。</p>
+        <div style="max-height: 360px; overflow: auto;">
+            <table style="width:100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid #eee;">
+                        <th style="padding: 10px 8px;">规则</th>
+                        <th style="padding: 10px 8px;">支持度</th>
+                        <th style="padding: 10px 8px;">置信度</th>
+                        <th style="padding: 10px 8px;">提升度</th>
+                        <th style="padding: 10px 8px;">解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in (rules or []) %}
+                    <tr style="border-bottom: 1px solid #f0f2f5;">
+                        <td style="padding: 10px 8px;">
+                            <strong>{{ r.lhs }}</strong> → {{ r.rhs }}
+                        </td>
+                        <td style="padding: 10px 8px;">{{ "%.1f"|format((r.support or 0) * 100) }}%</td>
+                        <td style="padding: 10px 8px;" class="score">{{ "%.1f"|format((r.confidence or 0) * 100) }}%</td>
+                        <td style="padding: 10px 8px;">{{ "%.2f"|format(r.lift or 0) }}</td>
+                        <td style="padding: 10px 8px; color: var(--text-muted);">
+                            {% if (r.lift or 0) >= 2.5 %}强关联（很适合做套餐）
+                            {% elif (r.lift or 0) >= 1.2 %}正相关（可做邻近陈列）
+                            {% else %}关联一般（参考即可）{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not rules or not rules|length %}
+            <p style="padding: 14px; color: var(--text-muted);">暂无规则数据，需要更多订单。</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-title">套餐建议卡</div>
+    <p class="mini">基于强规则自动生成搭配建议。</p>
+    <div class="bundle-grid">
+        {% for b in (bundles or []) %}
+        <div class="bundle-card">
+            <div class="bundle-title"><span class="pill">推荐</span>{{ b.title }}</div>
+            <div style="display:flex; flex-wrap: wrap; gap: 6px;">
+                {% for it in (b.products or []) %}
+                <span class="item-badge">{{ it }}</span>
+                {% endfor %}
+            </div>
+            <div class="metric-row">
+                <span>支持度 {{ "%.1f"|format((b.support or 0)*100) }}%</span>
+                <span>置信度 {{ "%.1f"|format((b.confidence or 0)*100) }}%</span>
+                <span>提升度 {{ "%.2f"|format(b.lift or 0) }}</span>
+            </div>
+        </div>
+        {% endfor %}
+        {% if not bundles or not bundles|length %}
+        <div class="bundle-card" style="color: var(--text-muted);">暂无可用套餐建议（需要更多规则）。</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div style="display:flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div>
+            <div class="card-title" style="margin:0;">频繁项集分析</div>
+            <div class="mini">
+                点击切换查看 1-项集（单品）与 2-项集（商品组合）。默认展示 Top5，其余可展开查看。
+                （支持度 ≥{{ (min_support_itemset*100)|round(1) }}%，规则阈值：支持度 ≥{{ (min_support_rule*100)|round(1) }}%，置信度 ≥{{ (min_confidence_rule*100)|round(1) }}%）
+            </div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="itemset tabs">
+            <button class="tab active" id="tab1" data-target="panel1" type="button">1-项集</button>
+            <button class="tab" id="tab2" data-target="panel2" type="button">2-项集</button>
+        </div>
+    </div>
+
+    <div id="panel1" style="margin-top: 14px;">
+        <div class="top-list">
+            {% for f in (top1 or []) %}
+            <div class="top-item">
+                <strong>{{ f.item }}</strong>
+                <div class="mini"><span>频次 {{ f.count }}</span><span>支持度 {{ "%.1f"|format((f.support or 0)*100) }}%</span></div>
+            </div>
+            {% endfor %}
+        </div>
+        <details style="margin-top: 12px;">
+            <summary class="mini" style="cursor:pointer; font-weight: 700;">查看更多</summary>
+            <div class="listbox">
+                {% for f in (rest1 or []) %}
+                <div class="list-row">
+                    <span>{{ f.item }}</span>
+                    <span class="mini">频次 {{ f.count }} · 支持度 {{ "%.1f"|format((f.support or 0)*100) }}%</span>
+                </div>
+                {% endfor %}
+                {% if not rest1 or not rest1|length %}
+                <div class="mini" style="padding:10px 0;">暂无更多单品项集。</div>
+                {% endif %}
+            </div>
+        </details>
+    </div>
+
+    <div id="panel2" style="margin-top: 14px; display:none;">
+        <div class="top-list">
+            {% for f in (top2 or []) %}
+            <div class="top-item">
+                <strong>{{ f.pair[0] }} + {{ f.pair[1] }}</strong>
+                <div class="mini"><span>频次 {{ f.count }}</span><span>支持度 {{ "%.1f"|format((f.support or 0)*100) }}%</span></div>
+            </div>
+            {% endfor %}
+        </div>
+        <details style="margin-top: 12px;">
+            <summary class="mini" style="cursor:pointer; font-weight: 700;">查看更多</summary>
+            <div class="listbox">
+                {% for f in (rest2 or []) %}
+                <div class="list-row">
+                    <span>{{ f.pair[0] }} + {{ f.pair[1] }}</span>
+                    <span class="mini">频次 {{ f.count }} · 支持度 {{ "%.1f"|format((f.support or 0)*100) }}%</span>
+                </div>
+                {% endfor %}
+                {% if not rest2 or not rest2|length %}
+                <div class="mini" style="padding:10px 0;">暂无更多组合项集。</div>
+                {% endif %}
+            </div>
+        </details>
+    </div>
+</div>
+
+<script>
+(function () {
+    // Tabs
+    function setActive(targetId) {
+        document.getElementById('panel1').style.display = (targetId === 'panel1') ? '' : 'none';
+        document.getElementById('panel2').style.display = (targetId === 'panel2') ? '' : 'none';
+        document.getElementById('tab1').classList.toggle('active', targetId === 'panel1');
+        document.getElementById('tab2').classList.toggle('active', targetId === 'panel2');
+    }
+    document.getElementById('tab1').addEventListener('click', function () { setActive('panel1'); });
+    document.getElementById('tab2').addEventListener('click', function () { setActive('panel2'); });
+
+    // Simple association graph (no external libs)
+    const nodes = {{ (graph_nodes or [])|tojson }};
+    const edges = {{ (graph_edges or [])|tojson }};
+    const wrap = document.getElementById('assocGraph');
+    if (!wrap) return;
+    if (!nodes || nodes.length === 0) {
+        wrap.innerHTML = '<div style="padding:14px; color: var(--text-muted);">暂无关联网络数据。</div>';
+        return;
+    }
+
+    const w = wrap.clientWidth || 600;
+    const h = wrap.clientHeight || 320;
+    const cx = w / 2, cy = h / 2;
+    const R = Math.min(w, h) * 0.34;  // 稍微缩小节点半径，为文字留出空间
+
+    const pos = {};
+    nodes.forEach(function (n, i) {
+        const a = (Math.PI * 2 * i) / nodes.length;
+        pos[n] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) };
+    });
+
+    const maxSup = edges.reduce((m, e) => Math.max(m, Number(e.support || 0)), 0.0001);
+
+    // 选出若干「增强高频关联」：按支持度排序取前 15 条
+    const strongSet = new Set();
+    if (edges && edges.length) {
+        const sortedBySup = [...edges].sort((a, b) => Number(b.support || 0) - Number(a.support || 0));
+        sortedBySup.slice(0, 15).forEach(e => {
+            const k1 = e.source + "||" + e.target;
+            const k2 = e.target + "||" + e.source;
+            strongSet.add(k1);
+            strongSet.add(k2);
+        });
+    }
+    const svgParts = [];
+    svgParts.push('<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg">');
+
+    // 普通 edges（底层，颜色略加深）
+    edges.forEach(function (e) {
+        const p1 = pos[e.source], p2 = pos[e.target];
+        if (!p1 || !p2) return;
+        const sup = Number(e.support || 0);
+        const key = e.source + "||" + e.target;
+        if (strongSet.has(key)) {
+            // 强关联稍后再画
+            return;
+        }
+        const sw = 1.0 + 3.2 * (sup / maxSup);
+        // 提高整体不透明度区间，让线条更明显
+        const alpha = 0.20 + 0.40 * (sup / maxSup);
+        svgParts.push(
+            '<line x1="' + p1.x.toFixed(1) + '" y1="' + p1.y.toFixed(1) +
+            '" x2="' + p2.x.toFixed(1) + '" y2="' + p2.y.toFixed(1) +
+            '" stroke="rgba(148,163,184,' + alpha.toFixed(2) + ')" stroke-width="' + sw.toFixed(1) + '"/>'
+        );
+    });
+
+    // 增强的高频 edges（上层，颜色更亮更粗）
+    edges.forEach(function (e) {
+        const p1 = pos[e.source], p2 = pos[e.target];
+        if (!p1 || !p2) return;
+        const sup = Number(e.support || 0);
+        const key = e.source + "||" + e.target;
+        if (!strongSet.has(key)) return;
+        const sw = 2 + 6 * (sup / maxSup);
+        const alpha = 0.35 + 0.45 * (sup / maxSup);
+        svgParts.push(
+            '<line x1="' + p1.x.toFixed(1) + '" y1="' + p1.y.toFixed(1) +
+            '" x2="' + p2.x.toFixed(1) + '" y2="' + p2.y.toFixed(1) +
+            '" stroke="rgba(255,0,128,' + alpha.toFixed(2) + ')" stroke-width="' + sw.toFixed(1) + '"/>'
+        );
+    });
+
+    // nodes
+    nodes.forEach(function (n) {
+        const p = pos[n];
+        const label = String(n);
+        // 节点本身
+        svgParts.push('<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="9" fill="#7928ca"/>');
+
+        // 文本沿着圆外缘排布，避免互相压在一起
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        const offsetR = R + 18;  // 文字所在的半径
+        const lx = cx + offsetR * (dx / len);
+        const ly = cy + offsetR * (dy / len);
+
+        // 左半边节点的文字向左对齐，右半边向右对齐，减少重叠
+        const anchor = (lx < cx) ? 'end' : 'start';
+        const safeLabel = label.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        svgParts.push(
+            '<text x="' + lx.toFixed(1) + '" y="' + (ly + 4).toFixed(1) +
+            '" text-anchor="' + anchor + '" fill="#111827">' + safeLabel + '</text>'
+        );
+    });
+
+    svgParts.push('</svg>');
+    wrap.innerHTML = svgParts.join('');
+})();
+</script>
+{% endblock %}

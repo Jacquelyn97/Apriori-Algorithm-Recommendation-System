@@ -1,0 +1,74 @@
+<view class="container" wx:if="{{product}}">
+  <scroll-view class="scroll" scroll-y>
+    <view class="card">
+      <view class="hero">
+        <image class="heroImg" src="{{imagePath}}" mode="aspectFit" wx:if="{{imagePath}}" />
+        <view class="heroPlaceholder" wx:else><text>图</text></view>
+      </view>
+      <text class="name">{{product.name}}</text>
+      <view wx:if="{{product.description}}">
+        <text class="labelSmall">描述</text>
+        <text class="desc">{{product.description}}</text>
+      </view>
+      <view wx:if="{{product.taste}}">
+        <text class="labelSmall">口感</text>
+        <text class="desc">{{product.taste}}</text>
+      </view>
+      <view wx:if="{{product.tagline}}">
+        <text class="labelSmall">广告语</text>
+        <text class="tagline">{{product.tagline}}</text>
+      </view>
+      <text class="price" wx:if="{{!hasVariants}}">￥{{product.price}}</text>
+      <text class="desc" wx:elif="{{hasVariants}}">请选择口味及数量后加入购物车</text>
+      <text class="selected" wx:if="{{!hasVariants && isSnack}}">已选数量：{{qty}}</text>
+      <text class="selected" wx:elif="{{!hasVariants && !isSnack}}">已选：{{optionsText}}</text>
+    </view>
+
+    <view class="card" wx:if="{{hasVariants}}">
+      <text class="sectionTitle">选择口味</text>
+      <view class="variantRow" wx:for="{{variants}}" wx:key="id">
+        <view class="variantThumb">
+          <image class="variantThumbImg" src="{{item.imagePath}}" mode="aspectFill" wx:if="{{item.imagePath}}" />
+          <view class="variantPlaceholder" wx:else><text>图</text></view>
+        </view>
+        <view class="variantInfo">
+          <text class="variantName">{{item.name}}</text>
+          <text class="variantPrice">￥{{item.price}}</text>
+          <view class="stepper">
+            <view class="stepBtn {{item.variantQty <= 0 ? 'disabled' : ''}}" data-id="{{item.id}}" data-delta="-1" bindtap="setVariantQty">-</view>
+            <text class="qty">{{item.variantQty}}</text>
+            <view class="stepBtn" data-id="{{item.id}}" data-delta="1" bindtap="setVariantQty">+</view>
+          </view>
+        </view>
+      </view>
+      <text class="selected" wx:if="{{totalVariantQty > 0}}">已选共 {{totalVariantQty}} 件</text>
+    </view>
+
+    <view class="card" wx:if="{{!isSnack && !hasVariants}}">
+      <text class="sectionTitle">冰度</text>
+      <view class="chips">
+        <view class="chip {{ice === item ? 'active' : ''}}" wx:for="{{iceOptions}}" wx:key="*this" data-val="{{item}}" bindtap="setIce">{{item}}</view>
+      </view>
+      <text class="sectionTitle">糖度</text>
+      <view class="chips">
+        <view class="chip {{sugar === item ? 'active' : ''}}" wx:for="{{sugarOptions}}" wx:key="*this" data-val="{{item}}" bindtap="setSugar">{{item}}</view>
+      </view>
+      <text class="sectionTitle">底料</text>
+      <view class="chips">
+        <view class="chip {{item.selected ? 'active' : ''}}" wx:for="{{baseOptionsWithSelected}}" wx:key="name" data-val="{{item.name}}" bindtap="toggleBase">{{item.name}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="qtyRow" wx:if="{{!hasVariants}}">
+        <text class="label">数量</text>
+        <view class="stepper">
+          <view class="stepBtn" bindtap="decQty">-</view>
+          <text class="qty">{{qty}}</text>
+          <view class="stepBtn" bindtap="incQty">+</view>
+        </view>
+      </view>
+      <view class="btn {{btnDisabled ? 'disabled' : ''}}" bindtap="addToCart">{{btnText}}</view>
+    </view>
+  </scroll-view>
+</view>

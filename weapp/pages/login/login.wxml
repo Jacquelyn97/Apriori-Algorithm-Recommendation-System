@@ -1,0 +1,19 @@
+<view class="container">
+  <image class="bg" src="/temp/loginImg.jpg" mode="aspectFill" />
+  <view class="center">
+    <text class="title">茶物语</text>
+    <text class="subtitle">一杯茶，一段故事</text>
+  </view>
+  <view class="bottom">
+    <view
+      class="btn"
+      bindtap="onLogin"
+      hover-class="btn-hover"
+      hover-start-time="0"
+      hover-stay-time="80"
+    >
+      <image class="wechatIcon" src="/assets/wechat.png" mode="aspectFit" />
+      <text class="btnText">一键登录</text>
+    </view>
+  </view>
+</view>

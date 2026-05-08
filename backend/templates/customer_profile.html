@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Customer Profile{% endblock %}
+{% block nav_path %}Customer Profile{% endblock %}
+{% block nav_title %}Customer Profile{% endblock %}
+
+{% block content %}
+<style>
+    .chart-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+    .chart-cell { min-height: 280px; }
+    .chart-caption { font-size: 12px; color: var(--text-muted); margin-top: 4px; margin-bottom: 8px; }
+    @media (max-width: 900px) { .chart-row { grid-template-columns: 1fr; } }
+</style>
+
+<div class="chart-row">
+    <div class="card chart-cell">
+        <h6 class="card-title">性别</h6>
+        <p class="chart-caption">展示用户中性别的占比率</p>
+        <div style="height: 240px;"><canvas id="chartGender"></canvas></div>
+    </div>
+    <div class="card chart-cell">
+        <h6 class="card-title">年龄段</h6>
+        <p class="chart-caption">展示用户各年龄段的分布</p>
+        <div style="height: 240px;"><canvas id="chartAge"></canvas></div>
+    </div>
+</div>
+
+<div class="chart-row">
+    <div class="card chart-cell">
+        <h6 class="card-title">职业</h6>
+        <p class="chart-caption">展示用户职业的分布</p>
+        <div style="height: 240px;"><canvas id="chartOcc"></canvas></div>
+    </div>
+    <div class="card chart-cell">
+        <h6 class="card-title">城市</h6>
+        <p class="chart-caption">展示用户所在城市的分布</p>
+        <div style="height: 240px;"><canvas id="chartCity"></canvas></div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <h6 class="card-title">消费区域 Top3</h6>
+    <p class="chart-caption">展示营收贡献最高的 3 个区域</p>
+    <div style="height: 260px;"><canvas id="chartAreaTop"></canvas></div>
+</div>
+
+<div class="card">
+    <h6 class="card-title">会员增长（按月）</h6>
+    <p class="chart-caption">展示每月新增会员数量趋势</p>
+    <div style="height: 260px;"><canvas id="chartGrowth"></canvas></div>
+</div>
+
+<script>
+(function () {
+    const genders = {{ (genders or [])|tojson }};
+    if (document.getElementById('chartGender') && genders.length) {
+        new Chart(document.getElementById('chartGender'), {
+            type: 'doughnut',
+            data: { labels: genders.map(function(g) { return g.gender || 'N/A'; }), datasets: [{ data: genders.map(function(g) { return g.cnt; }), backgroundColor: ['#ff0080','#7928ca','#0e7490'] }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+    const ages = {{ (ages or [])|tojson }};
+    if (document.getElementById('chartAge') && ages.length) {
+        new Chart(document.getElementById('chartAge'), {
+            type: 'bar',
+            data: { labels: ages.map(function(a) { return a.bucket; }), datasets: [{ label: '数量', data: ages.map(function(a) { return a.cnt; }), backgroundColor: 'rgba(121,40,202,0.8)' }] },
+            options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+        });
+    }
+    const occupations = {{ (occupations or [])|tojson }};
+    if (document.getElementById('chartOcc') && occupations.length) {
+        new Chart(document.getElementById('chartOcc'), {
+            type: 'bar',
+            data: { labels: occupations.map(function(o) { return o.occupation; }), datasets: [{ label: '数量', data: occupations.map(function(o) { return o.cnt; }), backgroundColor: 'rgba(14,116,144,0.8)' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+    const cities = {{ (cities or [])|tojson }};
+    if (document.getElementById('chartCity') && cities.length) {
+        new Chart(document.getElementById('chartCity'), {
+            type: 'doughnut',
+            data: { labels: cities.map(function(c) { return c.city; }), datasets: [{ data: cities.map(function(c) { return c.cnt; }), backgroundColor: ['#ff0080','#7928ca','#0e7490','#ea580c','#82d616'] }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    const topAreas = {{ (top_areas or [])|tojson }};
+    if (document.getElementById('chartAreaTop') && topAreas.length) {
+        new Chart(document.getElementById('chartAreaTop'), {
+            type: 'bar',
+            data: {
+                labels: topAreas.map(function(r) { return r.area; }),
+                datasets: [{
+                    label: 'Revenue (RM)',
+                    data: topAreas.map(function(r) { return Number(r.revenue || 0); }),
+                    backgroundColor: 'rgba(234,88,12,0.85)',
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const v = ctx.raw || 0;
+                                return 'RM ' + Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(v) { return 'RM ' + Number(v).toLocaleString(); }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const growth = {{ (growth or [])|tojson }};
+    if (document.getElementById('chartGrowth') && growth.length) {
+        new Chart(document.getElementById('chartGrowth'), {
+            type: 'line',
+            data: { labels: growth.map(function(g) { return g.ym; }), datasets: [{ label: '新增用户', data: growth.map(function(g) { return g.new_users; }), borderColor: '#ff0080', fill: true, backgroundColor: 'rgba(255,0,128,0.1)', tension: 0.3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+})();
+</script>
+{% endblock %}

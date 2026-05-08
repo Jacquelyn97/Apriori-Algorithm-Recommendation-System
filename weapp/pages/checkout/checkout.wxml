@@ -1,0 +1,69 @@
+<view class="container">
+  <scroll-view class="scroll" scroll-y>
+    <view class="contentInner">
+    <view class="segmentWrap">
+      <view class="segment {{deliveryMode !== 'delivery' ? 'active' : ''}}" data-mode="self" bindtap="setDeliveryMode">自取</view>
+      <view class="segment {{deliveryMode === 'delivery' ? 'active' : ''}}" data-mode="delivery" bindtap="setDeliveryMode">外卖</view>
+    </view>
+
+    <view class="card" wx:if="{{deliveryMode !== 'delivery'}}">
+      <text class="sectionTitle">自取门店</text>
+      <view class="storeMainRow" bindtap="goStoreList">
+        <view class="storeInfoRow">
+          <image class="storeIcon" src="/assets/store.png" mode="aspectFit" />
+          <view class="storeInfo">
+            <text class="storeName">{{selectedStore.name}}</text>
+            <view class="storeAddressRow">
+              <text class="storeAddress">{{selectedStore.address}}</text>
+              <text class="storeDistance">{{selectedStore.distanceText}}</text>
+            </view>
+          </view>
+        </view>
+        <text class="storeArrow">›</text>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{deliveryMode === 'delivery'}}">
+      <view class="addressRow" bindtap="goAddressList">
+        <text class="{{addressOk ? 'addressSelected' : 'addressLabel'}}">{{addressOk ? selectedAddress.name + ' ' + selectedAddress.phone : '请选择收货地址'}}</text>
+        <text class="arrow">›</text>
+      </view>
+      <text class="addressDetail" wx:if="{{addressOk && selectedAddress}}">{{selectedAddress.region}} {{selectedAddress.street}}</text>
+    </view>
+
+    <view class="card">
+      <text class="sectionTitle">确认订单</text>
+      <view class="itemRow" wx:for="{{cart}}" wx:key="id">
+        <view class="itemThumb">
+          <image class="itemImg" src="{{item.imagePath}}" mode="aspectFill" wx:if="{{item.imagePath}}" />
+          <view class="itemPlaceholder" wx:else><text>图</text></view>
+        </view>
+        <view class="itemInfo">
+          <text class="itemName">{{item.name}}</text>
+          <text class="itemPrice">¥ {{item.priceFixed}}</text>
+        </view>
+        <text class="itemQty">x{{item.qty}}</text>
+      </view>
+      <view class="summaryRow"><text class="summaryLabel">数量</text><text class="summaryValue">{{totalQty}}个</text></view>
+      <view class="summaryRow"><text class="summaryLabel">合计</text><text class="summaryTotal">¥ {{totalPrice}}</text></view>
+    </view>
+
+    <view class="card">
+      <text class="sectionTitle">支付方式</text>
+      <view class="payRow" data-method="tng" bindtap="setPayment">
+        <text class="payName">TNG</text>
+        <view class="radioWrap {{paymentMethod === 'tng' ? 'checked' : ''}}">{{paymentMethod === 'tng' ? '✓' : ''}}</view>
+      </view>
+      <view class="payRow" data-method="visa" bindtap="setPayment">
+        <text class="payName">Online Bank</text>
+        <view class="radioWrap {{paymentMethod === 'visa' ? 'checked' : ''}}">{{paymentMethod === 'visa' ? '✓' : ''}}</view>
+      </view>
+    </view>
+    <text class="error" wx:if="{{error}}">{{error}}</text>
+    </view>
+  </scroll-view>
+  <view class="footer">
+    <view class="payLaterBtn" bindtap="payLater">稍后支付</view>
+    <view class="submitBtn" bindtap="submit">提交订单</view>
+  </view>
+</view>

@@ -1,0 +1,55 @@
+/* pages/checkout/checkout.wxss */
+.container { min-height: 100vh; background: #f5f5f5; padding-bottom: 220rpx; }
+.header { display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 48rpx 24rpx 24rpx; border-bottom: 1rpx solid #eee; }
+.headerBtn { padding: 16rpx; }
+.headerBack { font-size: 56rpx; color: #333; font-weight: 300; }
+.headerTitle { font-size: 36rpx; font-weight: 700; color: #333; }
+.headerPlaceholder { width: 88rpx; }
+.scroll { padding: 32rpx 24rpx 220rpx; box-sizing: border-box; }
+.contentInner { max-width: 700rpx; margin: 0 auto; }
+.segmentWrap { display: flex; background: #fff; border-radius: 24rpx; margin-bottom: 24rpx; padding: 8rpx; }
+.segment { flex: 1; padding: 24rpx; text-align: center; border-radius: 20rpx; font-size: 30rpx; color: #999; font-weight: 600; }
+.segment.active { background: #ff9500; color: #fff; }
+.card { background: #fff; border-radius: 24rpx; padding: 32rpx; margin-bottom: 24rpx; }
+.sectionTitle { font-size: 32rpx; font-weight: 800; color: #333; margin-bottom: 24rpx; display: block; }
+.storeMainRow { display: flex; align-items: center; justify-content: space-between; padding: 8rpx 0; }
+.storeInfoRow { display: flex; align-items: center; flex: 1; margin-right: 16rpx; }
+.storeIcon { width: 56rpx; height: 56rpx; border-radius: 16rpx; margin-right: 20rpx; }
+.storeInfo { flex: 1; }
+.storeName { font-size: 30rpx; font-weight: 700; color: #333; display: block; margin-bottom: 8rpx; }
+.storeAddressRow { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; }
+.storeAddress { font-size: 24rpx; color: #666; flex: 1; }
+.storeDistance { font-size: 24rpx; color: #666; white-space: nowrap; }
+.storeArrow { font-size: 32rpx; color: #999; }
+.storeList { margin-top: 16rpx; padding-top: 12rpx; border-top: 1rpx solid #f5f5f5; }
+.storeRow { display: flex; align-items: center; justify-content: space-between; padding: 12rpx 0; border-bottom: 1rpx solid #f5f5f5; }
+.storeNameSmall { font-size: 28rpx; color: #333; display: block; }
+.storeAddressSmall { font-size: 24rpx; color: #888; display: block; margin-top: 4rpx; }
+.storeRadio { width: 40rpx; height: 40rpx; border-radius: 20rpx; border: 2rpx solid #ccc; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+.storeRadioInner { width: 24rpx; height: 24rpx; border-radius: 12rpx; background: #ff9500; }
+.storeRadio.checked { border-color: #ff9500; }
+.addressRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8rpx; }
+.addressLabel { font-size: 28rpx; color: #ff9500; font-weight: 600; }
+.addressSelected { font-size: 28rpx; color: #333; font-weight: 600; flex: 1; }
+.addressDetail { font-size: 24rpx; color: #666; margin-top: 8rpx; display: block; }
+.arrow { font-size: 32rpx; color: #999; }
+.itemRow { display: flex; margin-bottom: 28rpx; }
+.itemThumb { width: 128rpx; height: 128rpx; border-radius: 16rpx; overflow: hidden; margin-right: 24rpx; background: #eee; }
+.itemImg { width: 100%; height: 100%; }
+.itemPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24rpx; color: #999; }
+.itemInfo { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.itemName { font-size: 28rpx; color: #333; margin-bottom: 8rpx; }
+.itemPrice { font-size: 28rpx; color: #333; font-weight: 700; }
+.itemQty { font-size: 26rpx; color: #666; font-weight: 700; align-self: center; margin-left: 16rpx; white-space: nowrap; }
+.summaryRow { display: flex; justify-content: space-between; align-items: center; margin-top: 20rpx; }
+.summaryLabel { font-size: 28rpx; color: #666; }
+.summaryValue { font-size: 28rpx; color: #333; }
+.summaryTotal { font-size: 32rpx; font-weight: 800; color: rgb(174,127,85); }
+.payRow { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 0; border-bottom: 1rpx solid #f0f0f0; }
+.payName { font-size: 30rpx; color: #333; font-weight: 600; }
+.radioWrap { width: 44rpx; height: 44rpx; border-radius: 22rpx; border: 2rpx solid #ddd; text-align: center; line-height: 40rpx; font-size: 24rpx; color: transparent; }
+.radioWrap.checked { background: #ffcc00; border-color: #ffcc00; color: #fff; }
+.error { margin-top: 16rpx; color: #f56c6c; font-weight: 700; font-size: 26rpx; display: block; }
+.footer { position: fixed; bottom: 0; left: 0; right: 0; display: flex; padding: 32rpx; padding-bottom: 48rpx; background: #fff; border-top: 1rpx solid #eee; }
+.payLaterBtn { flex: 1; padding: 28rpx; border-radius: 44rpx; background: #e8e8e8; text-align: center; font-size: 32rpx; color: #666; font-weight: 700; margin-right: 24rpx; }
+.submitBtn { flex: 1; padding: 28rpx; border-radius: 44rpx; background: rgb(174,127,85); text-align: center; color: #fff; font-size: 32rpx; font-weight: 800; }

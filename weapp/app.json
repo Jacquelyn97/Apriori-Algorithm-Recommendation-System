@@ -1,0 +1,40 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/index/index",
+    "pages/drink-menu/drink-menu",
+    "pages/order/order",
+    "pages/profile/profile",
+    "pages/cart/cart",
+    "pages/product-detail/product-detail",
+    "pages/checkout/checkout",
+    "pages/order-detail/order-detail",
+    "pages/address-list/address-list",
+    "pages/address-form/address-form",
+    "pages/store-list/store-list"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "Tea Stories",
+    "navigationBarTextStyle": "black"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于计算您与自取门店的距离"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation"],
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#ffcc00",
+    "backgroundColor": "#fff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "主页", "iconPath": "assets/home.png", "selectedIconPath": "assets/home_clicked.png" },
+      { "pagePath": "pages/drink-menu/drink-menu", "text": "点餐", "iconPath": "assets/menu.png", "selectedIconPath": "assets/menu_clicked.png" },
+      { "pagePath": "pages/order/order", "text": "订单", "iconPath": "assets/order.png", "selectedIconPath": "assets/order_clicked.png" },
+      { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "assets/profile.png", "selectedIconPath": "assets/profile_clicked.png" }
+    ]
+  }
+}
