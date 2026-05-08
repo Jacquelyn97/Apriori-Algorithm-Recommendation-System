@@ -76,7 +76,7 @@ npm run start
 
 Import the `weapp` directory into WeChat DevTools and configure its API base URL to point to your backend server.
 
-## Screenshot Walkthrough (English)
+## Screenshot Walkthrough
 
 ### A) Flask Backend
 
@@ -162,7 +162,7 @@ Import the `weapp` directory into WeChat DevTools and configure its API base URL
 
 ---
 
-# 中文说明（完整）
+# 中文说明
 
 ## 项目背景
 
