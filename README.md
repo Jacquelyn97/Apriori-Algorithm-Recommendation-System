@@ -5,7 +5,7 @@ It combines a Flask admin backend, recommendation logic (Apriori + clustering), 
 
 ---
 
-# Apriori 推荐系统（中英双语说明）
+# Apriori 推荐系统
 
 这是一个用于作品集和面试展示的全栈饮品点餐与推荐项目。  
 项目包含 Flask 后端、Apriori+聚类推荐逻辑，以及多端客户端实现。
