@@ -9,7 +9,7 @@ bp = Blueprint("realtime", __name__)
 def realtime_home():
     conn = get_conn()
     with conn.cursor() as cur:
-        # 今日关键指标
+        # 今日关键指标 / Key metrics for today
         cur.execute("""
             SELECT
               IFNULL(SUM(paid_amount),0) AS revenue,
@@ -23,7 +23,7 @@ def realtime_home():
 
         today_date = date.today()
 
-        # 今日顾客增长 / 新客 vs 老客 / 复购
+        # 今日顾客增长 / 新客 vs 老客 / 复购 / Daily customer growth, new vs returning, repurchase
         cur.execute("""
             SELECT DISTINCT user_id
             FROM orders
@@ -77,7 +77,7 @@ def realtime_home():
                 (repeat_today / len(today_user_ids)) * 100.0 if today_user_ids else 0.0
             )
 
-        # 最近 14 天收入 & 订单数
+        # 最近 14 天收入 & 订单数 / Revenue and order counts for last 14 days
         cur.execute("""
             SELECT DATE(created_at) AS d,
                    SUM(paid_amount) AS revenue,
@@ -90,7 +90,7 @@ def realtime_home():
         """)
         daily = cur.fetchall()
 
-        # 今日 24 小时每小时订单（仅统计 09:00–20:00，下班时间视为 0）
+        # 今日 24 小时每小时订单（仅统计 09:00–20:00，下班时间视为 0） / Hourly orders for today (09:00-20:00 active range)
         cur.execute("""
             SELECT HOUR(paid_at) AS h,
                    COUNT(*) AS cnt
@@ -103,11 +103,11 @@ def realtime_home():
             ORDER BY h
         """)
         hourly_raw = cur.fetchall()
-        # 补齐 0–23 点所有小时，即使没有订单也显示为 0；实际下单主要集中在 09–20 点
+        # 补齐 0–23 点所有小时，即使没有订单也显示为 0；实际下单主要集中在 09–20 点 / Fill all 0-23 hours with zeros when missing
         hourly_map = {row["h"]: row["cnt"] for row in (hourly_raw or [])}
         hourly = [{"h": h, "cnt": hourly_map.get(h, 0)} for h in range(0, 24)]
 
-        # 今日客单价分布
+        # 今日客单价分布 / Average ticket distribution for today
         cur.execute("""
             SELECT
               CASE
@@ -131,7 +131,7 @@ def realtime_home():
         """)
         price_buckets = cur.fetchall()
 
-        # 类目销量占比
+        # 类目销量占比 / Sales share by product category
         cur.execute("""
             SELECT c.name AS category,
                    SUM(oi.qty) AS qty

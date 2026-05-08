@@ -1,6 +1,7 @@
 """
 每天手动运行一次，为「当天」生成一批订单（周一至周六 09:00–20:00 营业时间内）。
-用法：在 backend 目录下执行  python seed_today_orders.py
+Run once per day to generate orders for today during business hours (Mon-Sat 09:00-20:00).
+用法 / Usage：在 backend 目录下执行 python seed_today_orders.py
 """
 import random
 import datetime
@@ -59,7 +60,7 @@ def main():
         item_rows = []
         delivery_rows = []
 
-        # 营业时间 09:00–19:59 内的随机分钟数
+        # 营业时间 09:00–19:59 内的随机分钟数 / Random minute offset within 09:00-19:59
         business_minutes_max = (20 - 9) * 60 - 1  # 659
 
         for _ in range(num_orders):

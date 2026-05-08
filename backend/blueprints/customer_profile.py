@@ -8,7 +8,7 @@ bp = Blueprint("profile", __name__)
 def profile_home():
     conn = get_conn()
     with conn.cursor() as cur:
-        # 性别分布
+        # 性别分布 / Gender distribution
         cur.execute("""
             SELECT gender, COUNT(*) AS cnt
             FROM user_profile
@@ -16,7 +16,7 @@ def profile_home():
         """)
         genders = cur.fetchall()
 
-        # 年龄段分布
+        # 年龄段分布 / Age bucket distribution
         cur.execute("""
             SELECT
               CASE
@@ -33,7 +33,7 @@ def profile_home():
         """)
         ages = cur.fetchall()
 
-        # 职业分布
+        # 职业分布 / Occupation distribution
         cur.execute("""
             SELECT occupation, COUNT(*) AS cnt
             FROM user_profile
@@ -41,7 +41,7 @@ def profile_home():
         """)
         occupations = cur.fetchall()
 
-        # 城市分布：4 个主要城市 + 其余归为 Other（子查询后排序以兼容 ONLY_FULL_GROUP_BY）
+        # 城市分布：4 个主要城市 + 其余归为 Other（子查询后排序以兼容 ONLY_FULL_GROUP_BY） / City distribution: 4 major cities + Other
         cur.execute("""
             SELECT city, cnt FROM (
                 SELECT
@@ -61,7 +61,7 @@ def profile_home():
         """)
         cities = cur.fetchall()
 
-        # 消费区域 Top3（优先 postcode；若缺失则按地址关键字归类，减少 Unknown）
+        # 消费区域 Top3（优先 postcode；若缺失则按地址关键字归类，减少 Unknown） / Top 3 spending areas, prefer postcode then address keyword fallback
         cur.execute("""
             SELECT area, SUM(paid_amount) AS revenue
             FROM (
@@ -86,9 +86,9 @@ def profile_home():
         """)
         _areas = cur.fetchall()
 
-        # 为了得到更好看的对比关系，在展示层稍微调整 56100 / 43300 的显示值：
-        #  - 56100 略微放大，让其作为 Top1 更突出
-        #  - 43300 略微压低，作为 Top2，与 56100 有明显差距
+        # 为了得到更好看的对比关系，在展示层稍微调整 56100 / 43300 的显示值： / Slight UI-only adjustment for clearer visual contrast
+        #  - 56100 略微放大，让其作为 Top1 更突出 / Slightly amplify 56100 so Top1 stands out
+        #  - 43300 略微压低，作为 Top2，与 56100 有明显差距 / Slightly reduce 43300 to keep visible gap from 56100
         adjusted = []
         for row in _areas:
             area = row.get("area")
@@ -102,7 +102,7 @@ def profile_home():
         adjusted.sort(key=lambda x: x["revenue"], reverse=True)
         top_areas = adjusted[:3]
 
-        # 会员增长趋势（按月）
+        # 会员增长趋势（按月） / Member growth trend by month
         cur.execute("""
             SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym,
                    COUNT(*) AS new_users

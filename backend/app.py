@@ -9,7 +9,7 @@ from blueprints.miniapp_api import bp as miniapp_api_bp
 
 def create_app():
     app = Flask(__name__, template_folder="templates")
-    app.config["SECRET_KEY"] = "dev"  # 自己改
+    app.config["SECRET_KEY"] = "dev"  # 自己改 / Replace in production
 
     app.register_blueprint(dashboard_bp, url_prefix="/")
     app.register_blueprint(gold_bp, url_prefix="/gold")
@@ -21,10 +21,10 @@ def create_app():
     @app.before_request
     def require_login():
         from flask import request, redirect, url_for, session
-        # 允许未登录访问登录/登出以及静态资源
+        # 允许未登录访问登录/登出以及静态资源 / Allow unauthenticated access to login/logout/static endpoints
         if request.endpoint in ("dashboard.login", "dashboard.logout", "static"):
             return None
-        # 允许小程序 API 访问（不走后台登录）
+        # 允许小程序 API 访问（不走后台登录） / Allow miniapp API access without admin login
         if request.path.startswith("/api/"):
             return None
         if not session.get("logged_in"):
@@ -33,8 +33,10 @@ def create_app():
     @app.after_request
     def add_no_cache_headers(response):
         """
-        登出后禁止通过浏览器返回键看到缓存页面：
+        登出后禁止通过浏览器返回键看到缓存页面。
+        Prevent browser back-navigation from showing cached pages after logout.
         给所有响应添加 no-store 等缓存控制头。
+        Apply no-store cache headers to all responses.
         """
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
@@ -45,5 +47,5 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    # 让小程序真机/局域网可访问（将 BASE_URL 指向本机局域网 IP）
+    # 让小程序真机/局域网可访问（将 BASE_URL 指向本机局域网 IP） / Expose app on LAN for real-device miniapp testing
     app.run(debug=True, host="0.0.0.0", port=5000)

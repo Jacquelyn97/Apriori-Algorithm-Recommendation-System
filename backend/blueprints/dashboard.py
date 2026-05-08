@@ -9,7 +9,7 @@ def index():
     from db import get_conn
     conn = get_conn()
     with conn.cursor() as cur:
-        # 最近 7 天收入（含今天）
+        # 最近 7 天收入（含今天） / Revenue in the last 7 days (including today)
         cur.execute("""
             SELECT IFNULL(SUM(paid_amount),0) AS today_revenue
             FROM orders
@@ -18,7 +18,7 @@ def index():
         """)
         today_revenue = cur.fetchone()["today_revenue"]
 
-        # 最近 7 天顾客数（付费的顾客）
+        # 最近 7 天顾客数（付费的顾客） / Paying customers in the last 7 days
         cur.execute("""
             SELECT COUNT(DISTINCT user_id) AS today_users
             FROM orders
@@ -27,7 +27,7 @@ def index():
         """)
         today_users = cur.fetchone()["today_users"]
 
-        # 最近 7 天新顾客
+        # 最近 7 天新顾客 / New customers in the last 7 days
         cur.execute("""
             SELECT COUNT(*) AS new_clients
             FROM users
@@ -35,7 +35,7 @@ def index():
         """)
         new_clients = cur.fetchone()["new_clients"]
 
-        # 最近 7 天订单数
+        # 最近 7 天订单数 / Order count in the last 7 days
         cur.execute("""
             SELECT COUNT(*) AS order_count
             FROM orders
@@ -43,7 +43,7 @@ def index():
         """)
         order_count = cur.fetchone()["order_count"]
 
-        # 按门店收入
+        # 按门店收入 / Revenue by store
         cur.execute("""
             SELECT s.name AS store_name,
                    IFNULL(SUM(o.paid_amount),0) AS revenue
@@ -55,13 +55,13 @@ def index():
             ORDER BY revenue DESC
         """)
         store_revenue = cur.fetchall()
-        # 把 Decimal 转成 float，避免模板里 Decimal / float 报错
+        # 把 Decimal 转成 float，避免模板里 Decimal / float 报错 / Cast Decimal to float to avoid template type issues
         for row in store_revenue:
             row["revenue"] = float(row.get("revenue") or 0)
-        # 预先在 Python 里算好最大门店收入
+        # 预先在 Python 里算好最大门店收入 / Precompute max store revenue for rendering
         max_store_revenue = max((row["revenue"] for row in store_revenue), default=1.0) or 1.0
 
-        # 最近 30 天收入曲线
+        # 最近 30 天收入曲线 / Revenue trend over the last 30 days
         cur.execute("""
             SELECT DATE(created_at) AS d,
                    SUM(paid_amount) AS revenue,
@@ -94,7 +94,7 @@ def tables():
 
 @bp.route("/tables/orders")
 def tables_orders():
-    """返回某一天的订单列表，用于 Tables 页的 Order Table。"""
+    """返回某一天的订单列表，用于 Tables 页的 Order Table。 Return daily order rows for the Tables page."""
     from db import get_conn
 
     date_str = request.args.get("date")
@@ -149,11 +149,11 @@ def tables_orders():
 def incomes():
     from db import get_conn
 
-    CLOSING_HOUR = 20  # 20:00 结业，之后不再计入当日营收
+    CLOSING_HOUR = 20  # 20:00 结业，之后不再计入当日营收 / Close at 20:00; later orders are excluded from today revenue
 
     conn = get_conn()
     with conn.cursor() as cur:
-        # BEST SCORE：历史中月销量（订单数）最高的那一月
+        # BEST SCORE：历史中月销量（订单数）最高的那一月 / Best-score month with highest historical order volume
         cur.execute("""
             SELECT
                 YEAR(paid_at) AS y,
@@ -174,7 +174,7 @@ def incomes():
             best_score_volume = 0
             best_score_y = best_score_m = None
 
-        # 今日订单与营收（若已过结业时间则只计到 20:00 为止）
+        # 今日订单与营收（若已过结业时间则只计到 20:00 为止） / Today orders and revenue (cap at 20:00 after closing)
         now = datetime.datetime.now()
         is_after_closing = now.hour >= CLOSING_HOUR
         if is_after_closing:
@@ -214,7 +214,7 @@ def incomes():
             """)
         today_revenue = float(cur.fetchone()["total"] or 0)
 
-        # 当月累计营收（INCOME 卡片用）
+        # 当月累计营收（INCOME 卡片用） / Current month accumulated revenue for INCOME card
         cur.execute("""
             SELECT IFNULL(SUM(paid_amount), 0) AS total
             FROM orders
@@ -227,7 +227,7 @@ def incomes():
     today_revenue_formatted = "{:,.2f}".format(today_revenue)
     month_revenue_formatted = "{:,.2f}".format(month_revenue)
 
-    # 格式化 BEST SCORE 日期：英文月份，格式 "01 February 2023"
+    # 格式化 BEST SCORE 日期：英文月份，格式 "01 February 2023" / Format BEST SCORE date using English month names
     best_score_date = "—"
     if best_score_y is not None and best_score_m is not None:
         try:
@@ -254,7 +254,7 @@ def incomes():
 
 @bp.route("/incomes/today")
 def incomes_today():
-    """供 Incomes 页 TODAY REAL-TIME 轮询：当天订单列表与营收，结业后只计到 20:00。"""
+    """供 Incomes 页 TODAY REAL-TIME 轮询：当天订单列表与营收，结业后只计到 20:00。 Endpoint for TODAY REAL-TIME polling in Incomes page."""
     from db import get_conn
 
     CLOSING_HOUR = 20
@@ -300,7 +300,7 @@ def incomes_today():
             """)
         total = float(cur.fetchone()["total"] or 0)
 
-        # 当月累计营收（供 INCOME 卡片实时更新）
+        # 当月累计营收（供 INCOME 卡片实时更新） / Monthly accumulated revenue for realtime INCOME updates
         cur.execute("""
             SELECT IFNULL(SUM(paid_amount), 0) AS total
             FROM orders
@@ -328,19 +328,19 @@ def incomes_today():
 
 @bp.route("/store")
 def store():
-    # 营业时间：周一至周六 09:00–20:00（20:00 视为已打烊）
+    # 营业时间：周一至周六 09:00–20:00（20:00 视为已打烊） / Business hours: Mon-Sat 09:00-20:00 (closed at 20:00)
     now = datetime.datetime.now()
     is_open = (now.weekday() < 6 and 9 <= now.hour < 20)
     return render_template("store.html", is_open=is_open)
 
 
-# 单一账号（不使用数据库）
+# 单一账号（不使用数据库） / Single hardcoded account (no DB auth)
 LOGIN_USERNAME = "admin"
 LOGIN_PASSWORD = "admin"
 
 
 def login_required(f):
-    """要求已登录，未登录则重定向到登录页"""
+    """要求已登录，未登录则重定向到登录页。 Require login; redirect unauthenticated users to login page."""
     from functools import wraps
     @wraps(f)
     def wrapped(*args, **kwargs):
@@ -360,7 +360,7 @@ def login():
         if username == LOGIN_USERNAME and password == LOGIN_PASSWORD:
             session["logged_in"] = True
             return redirect(url_for("dashboard.index"))
-        return render_template("login.html", error="账号或密码错误")
+        return render_template("login.html", error="账号或密码错误 / Invalid username or password")
     return render_template("login.html")
 
 

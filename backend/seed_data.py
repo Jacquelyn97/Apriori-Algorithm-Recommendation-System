@@ -4,7 +4,7 @@ from decimal import Decimal
 from faker import Faker
 import pymysql
 
-# ========== 配置部分 ==========
+# ========== 配置部分 / Configuration ==========
 DB_CONFIG = {
     "host": "127.0.0.1",
     "port": 3307,
@@ -14,7 +14,7 @@ DB_CONFIG = {
     "charset": "utf8mb4",
 }
 
-# 控制生成规模
+# 控制生成规模 / Generation scale
 NUM_USERS_MIN = 70
 NUM_USERS_MAX = 100
 MAX_ORDERS_PER_USER = 20
@@ -22,7 +22,7 @@ MAX_ORDERS_PER_USER = 20
 fake = Faker("zh_CN")
 
 
-# ========== 简单 DB 帮助 ==========
+# ========== 简单 DB 帮助 / DB helpers ==========
 
 def get_conn():
     return pymysql.connect(**DB_CONFIG)
@@ -36,7 +36,7 @@ def exec_many(conn, sql, params_list):
     conn.commit()
 
 
-# ========== 1. 门店 ==========
+# ========== 1. 门店 / Stores ==========
 
 def seed_stores(conn):
     stores = [
@@ -54,9 +54,9 @@ def seed_stores(conn):
     exec_many(conn, sql, stores)
 
 
-# ========== 2. 商品与类目 ==========
+# ========== 2. 商品与类目 / Products and categories ==========
 def seed_categories_products(conn):
-    # 类目：完全按照 weapp/utils/menuData.js 的 categories 来
+    # 类目：完全按照 weapp/utils/menuData.js 的 categories 来 / Categories follow weapp/utils/menuData.js exactly
     categories = [
         ("热销",       None, 1),   # id: hot
         ("招牌人气",   None, 2),   # id: signature
@@ -80,23 +80,23 @@ def seed_categories_products(conn):
 
 
 
-    # 商品池：多品类，避免订单只刷同一商品
-        # 商品：完全按 menuData.js，同步前端所有饮品/小吃
-    # cat_map 映射：hot→热销、signature→招牌人气、fruit→水果茶、
-    #               creative→创新、girl→少女系、summer→夏日、
-    #               healthy→健康轻饮、snack→小吃及甜品
+    # 商品池：多品类，避免订单只刷同一商品 / Multi-category product pool to avoid single-item dominance
+        # 商品：完全按 menuData.js，同步前端所有饮品/小吃 / Products mirror menuData.js for frontend alignment
+    # cat_map 映射：hot→热销、signature→招牌人气、fruit→水果茶、 / cat_map mapping for category ids
+    #               creative→创新、girl→少女系、summer→夏日、 / continued mapping
+    #               healthy→健康轻饮、snack→小吃及甜品 / continued mapping
     products = [
-        # 热销 hot
+        # 热销 hot / Hot sales
         (cat_map["热销"], "黑糖珍珠奶茶",    Decimal("10.00"), "/assets/rm01.jpg"),
         (cat_map["热销"], "芝士奶盖抹茶",    Decimal("14.00"), "/assets/rm02.jpg"),
         (cat_map["热销"], "焦糖布丁奶茶",    Decimal("13.00"), "/assets/rm03.jpg"),
 
-        # 招牌人气 signature
+        # 招牌人气 signature / Signature picks
         (cat_map["招牌人气"], "金凤乌龙奶茶",  Decimal("12.00"), "/assets/zp01.jpg"),
         (cat_map["招牌人气"], "多多绿茶奶茶",  Decimal("12.00"), "/assets/zp02.jpg"),
         (cat_map["招牌人气"], "奥利奥脆脆奶茶",Decimal("14.00"), "/assets/zp03.jpg"),
 
-        # 水果茶 fruit
+        # 水果茶 fruit / Fruit tea
         (cat_map["水果茶"], "杨枝甘露奶茶",    Decimal("16.00"), "/assets/sg01.jpg"),
         (cat_map["水果茶"], "草莓芝士奶盖",    Decimal("14.00"), "/assets/sg02.jpg"),
         (cat_map["水果茶"], "百香果绿茶",      Decimal("11.00"), "/assets/sg03.jpg"),
@@ -106,12 +106,12 @@ def seed_categories_products(conn):
         (cat_map["水果茶"], "火龙果椰香奶茶",  Decimal("14.00"), "/assets/sg07.jpg"),
         (cat_map["水果茶"], "柚子蜂蜜奶茶",    Decimal("14.00"), "/assets/sg08.jpg"),
 
-        # 创新 creative
+        # 创新 creative / Creative series
         (cat_map["创新"], "燕麦奶茶",          Decimal("9.00"),  "/assets/cx01.jpg"),
         (cat_map["创新"], "椰椰生椰拿铁",      Decimal("11.00"), "/assets/cx02.jpg"),
         (cat_map["创新"], "紫薯珍珠奶茶",      Decimal("12.00"), "/assets/cx03.jpg"),
 
-        # 少女系 girl
+        # 少女系 girl / Girly series
         (cat_map["少女系"], "玫瑰荔枝奶茶",      Decimal("16.00"), "/assets/sn01.jpg"),
         (cat_map["少女系"], "樱花草莓奶茶",      Decimal("18.00"), "/assets/sn02.jpg"),
         (cat_map["少女系"], "蓝莓优格奶茶",      Decimal("13.00"), "/assets/sn03.jpg"),
@@ -121,7 +121,7 @@ def seed_categories_products(conn):
         (cat_map["少女系"], "薰衣草奶茶",        Decimal("16.00"), "/assets/sn07.jpg"),
         (cat_map["少女系"], "红丝绒可可奶茶",    Decimal("18.00"), "/assets/sn08.jpg"),
 
-        # 夏日 summer
+        # 夏日 summer / Summer series
         (cat_map["夏日"], "椰果青柠奶茶",      Decimal("15.00"), "/assets/xr01.jpg"),
         (cat_map["夏日"], "西瓜冰奶茶",        Decimal("14.00"), "/assets/xr02.jpg"),
         (cat_map["夏日"], "蜂蜜柠檬奶茶",      Decimal("12.00"), "/assets/xr03.jpg"),
@@ -131,7 +131,7 @@ def seed_categories_products(conn):
         (cat_map["夏日"], "冰冻葡萄奶茶",      Decimal("12.00"), "/assets/xr07.jpg"),
         (cat_map["夏日"], "菠萝椰香奶茶",      Decimal("14.00"), "/assets/xr08.jpg"),
 
-        # 健康轻饮 healthy
+        # 健康轻饮 healthy / Healthy drinks
         (cat_map["健康轻饮"], "豆乳黑芝麻奶茶",  Decimal("10.00"), "/assets/jk01.jpg"),
         (cat_map["健康轻饮"], "低脂抹茶拿铁",    Decimal("12.00"), "/assets/jk02.jpg"),
         (cat_map["健康轻饮"], "燕麦红枣奶茶",    Decimal("8.00"),  "/assets/jk03.jpg"),
@@ -140,7 +140,7 @@ def seed_categories_products(conn):
         (cat_map["健康轻饮"], "蜂蜜柠檬普洱奶茶",Decimal("9.00"),  "/assets/jk06.jpg"),
         (cat_map["健康轻饮"], "无糖生椰抹茶",    Decimal("14.00"), "/assets/jk07.jpg"),
 
-        # 小吃及甜品 snack —— 普通小吃
+        # 小吃及甜品 snack —— 普通小吃 / Snacks & desserts - regular snacks
         (cat_map["小吃及甜品"], "炸鸡块",        Decimal("13.00"), "/assets/xc01.jpg"),
         (cat_map["小吃及甜品"], "鸡米花",        Decimal("6.00"),  "/assets/xc02.jpg"),
         (cat_map["小吃及甜品"], "薯条",          Decimal("5.00"),  "/assets/xc03.jpg"),
@@ -148,14 +148,14 @@ def seed_categories_products(conn):
         (cat_map["小吃及甜品"], "芝士蛋糕",      Decimal("13.00"), "/assets/xc10.jpg"),
         (cat_map["小吃及甜品"], "麻薯球",        Decimal("8.00"),  "/assets/xc11.jpg"),
 
-        # 小吃及甜品 snack —— 小蛋糕各口味（variants 展开成独立商品）
+        # 小吃及甜品 snack —— 小蛋糕各口味（variants 展开成独立商品） / Snacks & desserts - cupcake variants as standalone products
         (cat_map["小吃及甜品"], "小蛋糕（樱花龙眼）",   Decimal("14.00"), "/assets/xc04.jpg"),
         (cat_map["小吃及甜品"], "小蛋糕（抹茶红豆）",   Decimal("14.00"), "/assets/xc05.jpg"),
         (cat_map["小吃及甜品"], "小蛋糕（蓝莓酸奶）",   Decimal("14.00"), "/assets/xc06.jpg"),
         (cat_map["小吃及甜品"], "小蛋糕（芒果百香果）", Decimal("14.00"), "/assets/xc07.jpg"),
         (cat_map["小吃及甜品"], "小蛋糕（草莓巧克力）", Decimal("14.00"), "/assets/xc08.jpg"),
 
-        # 小吃及甜品 snack —— 甜甜圈各口味（variants 展开成独立商品）
+        # 小吃及甜品 snack —— 甜甜圈各口味（variants 展开成独立商品） / Snacks & desserts - donut variants as standalone products
         (cat_map["小吃及甜品"], "甜甜圈（椰子椰奶）",   Decimal("9.00"), "/assets/xc12.jpg"),
         (cat_map["小吃及甜品"], "甜甜圈（草莓巧克力）", Decimal("9.00"), "/assets/xc13.jpg"),
         (cat_map["小吃及甜品"], "甜甜圈（草莓樱花）",   Decimal("9.00"), "/assets/xc14.jpg"),
@@ -170,7 +170,7 @@ def seed_categories_products(conn):
     exec_many(conn, sql_prod, products)
 
 
-# ========== 3. 用户及画像 ==========
+# ========== 3. 用户及画像 / Users and profiles ==========
 
 def random_income():
     return random.choice(["低", "中", "高"])
@@ -219,12 +219,14 @@ def seed_users(conn):
     exec_many(conn, sql_prof, profile_rows)
 
 
-# ========== 4. 地址生成（马来西亚英文格式） ==========
+# ========== 4. 地址生成（马来西亚英文格式） / Address generation (Malaysia format) ==========
 
 def random_malaysia_address():
     """
     普通住宅: [house_no] [street] [neighbourhood] [postcode] [city] [state]
+    Landed house format: [house_no] [street] [neighbourhood] [postcode] [city] [state]
     公寓:     [floor]-[unit] [street] [neighbourhood] [postcode] [city] [state]
+    Apartment format: [floor]-[unit] [street] [neighbourhood] [postcode] [city] [state]
     """
     city = random.choice(["Kuala Lumpur", "Petaling Jaya", "Seri Kembangan", "Cheras"])
     state = "Selangor"
@@ -290,11 +292,11 @@ def random_malaysia_address():
         # fallback for other cities
         postcode = random.choice(["43000", "57000", "58000"])
 
-    if random.random() < 0.4:  # 公寓
+    if random.random() < 0.4:  # 公寓 / Apartment
         floor = random.randint(3, 25)
         unit = random.randint(1, 20)
         return f"{floor}-{unit} {street} {neighbourhood} {postcode} {city} {state}"
-    else:                       # 普通住宅
+    else:                       # 普通住宅 / Landed house
         house_no = random.randint(1, 50)
         return f"{house_no} {street} {neighbourhood} {postcode} {city} {state}"
 
@@ -326,18 +328,18 @@ def _random_latlng_for_city(city: str):
     return lat, lng
 
 
-# ========== 5. 订单 & 明细 & 配送信息 ==========
+# ========== 5. 订单 & 明细 & 配送信息 / Orders, items, and delivery ==========
 
 def seed_orders(conn):
-    # 准备维度数据
+    # 准备维度数据 / Prepare dimension data
     with conn.cursor() as cur:
         cur.execute("SELECT id FROM users")
         users = [r["id"] for r in cur.fetchall()]
-        # 用 code 映射门店，方便按开店日期控制
+        # 用 code 映射门店，方便按开店日期控制 / Map store codes for opening-date-based selection
         cur.execute("SELECT id, code FROM stores")
         store_rows = cur.fetchall()
         code_to_id = {row["code"]: row["id"] for row in store_rows}
-        # 直接使用 products（带类目），不区分中杯/大杯
+        # 直接使用 products（带类目），不区分中杯/大杯 / Use products with categories, without cup-size variants
         cur.execute("""
             SELECT p.id, p.base_price, p.name, c.name AS category_name
             FROM products p
@@ -358,7 +360,7 @@ def seed_orders(conn):
     for user_id in users:
         num_orders = random.randint(1, MAX_ORDERS_PER_USER)
         for _ in range(num_orders):
-            # 根据开店时间选择可用门店
+            # 根据开店时间选择可用门店 / Select stores based on opening dates
             kuchai_id = code_to_id.get("kuchai")
             cheras_id = code_to_id.get("cheras")
             sri_id = code_to_id.get("sri_petal")
@@ -394,7 +396,7 @@ def seed_orders(conn):
             )
             next_order_num += 1
 
-            # 构造明细：尽量饮料 + 甜品的组合
+            # 构造明细：尽量饮料 + 甜品的组合 / Build line items with drink+dessert combinations
             drinks = [p for p in products if (p[3] not in ("小蛋糕", "甜甜圈"))]
             desserts = [p for p in products if (p[3] in ("小蛋糕", "甜甜圈"))]
 
@@ -458,7 +460,7 @@ def seed_orders(conn):
             for (prod_id, prod_name, price, qty, line_total) in tmp_item_rows:
                 item_rows.append((order_no, prod_id, prod_name, price, qty, line_total))
 
-    # 插入 orders
+    # 插入 orders / Insert into orders
     sql_order = """
     INSERT INTO orders
     (order_no, user_id, store_id, delivery_mode, status,
@@ -469,12 +471,12 @@ def seed_orders(conn):
     """
     exec_many(conn, sql_order, order_rows)
 
-    # 查询 order_id 映射
+    # 查询 order_id 映射 / Query order_id mapping
     with conn.cursor() as cur:
         cur.execute("SELECT id, order_no FROM orders")
         mapping = {r["order_no"]: r["id"] for r in cur.fetchall()}
 
-    # 插入 order_items（不区分规格，product_variant_id 为 NULL）
+    # 插入 order_items（不区分规格，product_variant_id 为 NULL） / Insert order_items without size variants
     sql_items = """
     INSERT INTO order_items
     (order_id, product_id, product_variant_id, product_name_snap,
@@ -489,7 +491,7 @@ def seed_orders(conn):
         )
     exec_many(conn, sql_items, params_items)
 
-    # 插入配送信息
+    # 插入配送信息 / Insert delivery details
     sql_del = """
     INSERT INTO order_delivery_info
     (order_id, receiver_name, phone, full_address, postcode, lat, lng)
@@ -511,14 +513,16 @@ def seed_orders(conn):
     exec_many(conn, sql_del, params_del)
 
 
-# ========== 6. 额外「近期订单」增强（让最近 7~30 天更有数据） ==========
+# ========== 6. 额外「近期订单」增强（让最近 7~30 天更有数据） / Recent-order boost ==========
 
 def seed_recent_boost(conn, days=7, min_orders_per_day=20, max_orders_per_day=40):
     """
     追加一批最近 days 天内的订单，专门用来让 Dashboard / Real-time Sales 的
     7 天和 30 天图看起来更「有生意」一点，不会全部接近 0。
+    Add extra recent orders so 7-day and 30-day charts look realistic and non-zero.
 
     可以多次调用，每次都会再插入一批新订单。
+    This function is repeatable and adds a new batch each call.
     """
     with conn.cursor() as cur:
         cur.execute("SELECT id FROM users")
@@ -548,7 +552,7 @@ def seed_recent_boost(conn, days=7, min_orders_per_day=20, max_orders_per_day=40
     delivery_rows = []
 
     today = datetime.date.today()
-    seq = 100000  # 序号前移，避免和历史生成的序号冲突
+    seq = 100000  # 序号前移，避免和历史生成的序号冲突 / Offset sequence to reduce collision risk
 
     for i in range(days):
         day = today - datetime.timedelta(days=i)
@@ -561,7 +565,7 @@ def seed_recent_boost(conn, days=7, min_orders_per_day=20, max_orders_per_day=40
                 weights=[0.05, 0.35, 0.25, 0.35],
             )[0]
 
-            # 当天任意时间
+            # 当天任意时间 / Random time within the day
             minutes = random.randint(0, 23 * 60 + 59)
             created_at = datetime.datetime.combine(day, datetime.time.min) + datetime.timedelta(minutes=minutes)
             order_date = created_at.date()
@@ -695,15 +699,16 @@ def seed_recent_boost(conn, days=7, min_orders_per_day=20, max_orders_per_day=40
     exec_many(conn, sql_del, params_del)
 
 
-# ========== 7. 长期历史增强（从 1999-03-24 开始，按开店时间分配门店） ==========
+# ========== 7. 长期历史增强（从 1999-03-24 开始，按开店时间分配门店） / Long history boost ==========
 
 def seed_long_history(conn, start_date=None, end_date=None,
                       min_orders_per_day=5, max_orders_per_day=20):
     """
-    从 start_date 到 end_date（含）为每一天追加一些订单，遵守门店开店时间：
-    - 1999-03-24 ~ 2011-05-14: 仅 Kuchai
+    从 start_date 到 end_date（含）为每一天追加一些订单，遵守门店开店时间。
+    Add orders day-by-day from start_date to end_date while respecting opening dates.
+    - 1999-03-24 ~ 2011-05-14: 仅 Kuchai / Kuchai only
     - 2011-05-15 ~ 2015-08-11: Kuchai + Cheras
-    - 2015-08-12 以后: 三家店都有
+    - 2015-08-12 以后: 三家店都有 / All three stores available
     """
     if start_date is None:
         start_date = datetime.date(1999, 3, 24)
@@ -754,7 +759,7 @@ def seed_long_history(conn, start_date=None, end_date=None,
         n = random.randint(min_orders_per_day, max_orders_per_day)
         for _ in range(n):
             user_id = random.choice(users)
-            # 一天中的随机时间
+            # 一天中的随机时间 / Random time within the day
             minutes = random.randint(0, 23 * 60 + 59)
             created_at = datetime.datetime.combine(day, datetime.time.min) + datetime.timedelta(minutes=minutes)
 
@@ -893,7 +898,7 @@ def seed_long_history(conn, start_date=None, end_date=None,
     exec_many(conn, sql_del, params_del)
 
 
-# ========== 8. 指定门店增强（让某些分店的生意更好） ==========
+# ========== 8. 指定门店增强（让某些分店的生意更好） / Branch-specific boost ==========
 
 def seed_branch_boost(
     conn,
@@ -905,7 +910,9 @@ def seed_branch_boost(
 ):
     """
     为指定门店在一段时间内追加订单，用于让某个分店的销量 / 客户数更高。
+    Add extra orders for a specific branch in a date range to increase branch-level volume.
     只影响 orders / order_items / order_delivery_info，不动 users 表结构。
+    Only touches orders/order_items/order_delivery_info; users table remains unchanged.
     """
     if end_date < start_date:
         return

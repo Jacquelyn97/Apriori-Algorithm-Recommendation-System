@@ -1,18 +1,19 @@
 # backend/services/clustering.py
 """
 用户分群-聚类分析：RFM K-Means、群体特征、迁移桑基图数据。
+Customer segmentation via RFM K-Means, cohort features, and migration Sankey data.
 """
 from collections import Counter, defaultdict
 from db import get_conn
 
-# 分析窗口：最近 N 天内的订单参与 RFM 计算
+# 分析窗口：最近 N 天内的订单参与 RFM 计算 / Analysis window: orders in recent N days are used for RFM
 RFM_DAYS = 365
-# 迁移对比：当前期最近 30 天，上期 30–60 天前
+# 迁移对比：当前期最近 30 天，上期 30–60 天前 / Migration comparison: current 30 days vs previous 30-60 days
 MIGRATION_CURRENT_DAYS = 30
 MIGRATION_PREVIOUS_DAYS = 30
 N_CLUSTERS = 5
 
-# 五群名称（按 K-Means 聚类后按 R 升序、M 降序排序后依次对应 0..4）
+# 五群名称（按 K-Means 聚类后按 R 升序、M 降序排序后依次对应 0..4） / Segment names mapped to sorted centroids
 SEGMENT_NAMES = [
     "高价值忠诚群",
     "新锐潜力群",
@@ -23,7 +24,7 @@ SEGMENT_NAMES = [
 
 
 def _get_rfm_sql(end_days_ago, start_days_ago):
-    """RFM 统计时间范围：[CURDATE()-end_days_ago, CURDATE()-start_days_ago)。"""
+    """RFM 统计时间范围：[CURDATE()-end_days_ago, CURDATE()-start_days_ago)。 RFM time window definition."""
     return """
         SELECT
           u.id AS user_id,
@@ -41,7 +42,7 @@ def _get_rfm_sql(end_days_ago, start_days_ago):
 
 
 def _run_kmeans_and_label(rfm_list):
-    """对 RFM 列表做 K-Means，返回 (labels, centroids, segment_names_for_index)."""
+    """对 RFM 列表做 K-Means，返回 (labels, centroids, segment_names_for_index)。 Run K-Means and return labels/centroids/segment names."""
     if not rfm_list or len(rfm_list) < N_CLUSTERS:
         return [], [], []
     try:
@@ -49,7 +50,7 @@ def _run_kmeans_and_label(rfm_list):
         from sklearn.cluster import KMeans
         from sklearn.preprocessing import StandardScaler
     except ImportError:
-        # 无 sklearn 时退回规则分群
+        # 无 sklearn 时退回规则分群 / Fallback to rule-based segmentation when sklearn is unavailable
         labels = []
         for r in rfm_list:
             r_val = r["R"] or 999
@@ -74,7 +75,7 @@ def _run_kmeans_and_label(rfm_list):
     kmeans = KMeans(n_clusters=N_CLUSTERS, random_state=42, n_init=10)
     labels = kmeans.fit_predict(X_scaled)
     centroids = scaler.inverse_transform(kmeans.cluster_centers_)
-    # 按 R 升序、M 降序排中心，使 centroid 0=高价值忠诚，4=沉睡流失
+    # 按 R 升序、M 降序排中心，使 centroid 0=高价值忠诚，4=沉睡流失 / Sort centroids by low R and high M for stable segment indexing
     idx = np.lexsort((-centroids[:, 2], -centroids[:, 1], centroids[:, 0]))
     centroids_sorted = centroids[idx]
     inv_map = {idx[i]: i for i in range(N_CLUSTERS)}
@@ -83,7 +84,7 @@ def _run_kmeans_and_label(rfm_list):
 
 
 def _get_user_category_and_hour(conn):
-    """返回 (user_id -> top_category, user_id -> top_time_bucket)."""
+    """返回 (user_id -> top_category, user_id -> top_time_bucket)。 Return user-level favorite category and preferred time bucket."""
     with conn.cursor() as cur:
         cur.execute("""
             SELECT o.user_id, c.name AS cat_name, COUNT(*) AS cnt
@@ -111,7 +112,7 @@ def _get_user_category_and_hour(conn):
             GROUP BY user_id, HOUR(created_at)
         """, (RFM_DAYS,))
         rows = cur.fetchall()
-    # 时段：上午 6-11, 下午茶 12-16, 晚间 17-22
+    # 时段：上午 6-11, 下午茶 12-16, 晚间 17-22 / Time buckets: morning 6-11, afternoon 12-16, evening 17-22
     def bucket(h):
         if 6 <= h < 12:
             return "上午"
@@ -128,10 +129,10 @@ def _get_user_category_and_hour(conn):
 
 
 def get_cluster_summary():
-    """返回 (summary_list, rfm_points, radar_datasets, migration_links)."""
+    """返回 (summary_list, rfm_points, radar_datasets, migration_links)。 Return summary, scatter points, radar datasets, and migration links."""
     conn = get_conn()
     with conn.cursor() as cur:
-        # 最近 RFM_DAYS 天：end=RFM_DAYS, start=0
+        # 最近 RFM_DAYS 天：end=RFM_DAYS, start=0 / Current RFM window setup
         cur.execute(
             _get_rfm_sql(RFM_DAYS, 0),
             (RFM_DAYS, 0),
@@ -158,7 +159,7 @@ def get_cluster_summary():
             "cluster_idx": r["cluster_idx"],
         })
 
-    # 群体消费特征：人数、占比、客单价、复购率、最爱品类、最爱时段
+    # 群体消费特征：人数、占比、客单价、复购率、最爱品类、最爱时段 / Cohort metrics: size, share, avg order value, repurchase, favorite category/time
     seg_users = defaultdict(list)
     for r in rfm_list:
         seg_users[r["segment"]].append(r)
@@ -202,7 +203,7 @@ def get_cluster_summary():
             "favorite_timeslot": fav_hour,
         })
 
-    # 雷达图：每群一条线，维度 消费频率(F)、客单价(M)、品类偏好(0-100)、活跃时段(0-100)
+    # 雷达图：每群一条线，维度 消费频率(F)、客单价(M)、品类偏好(0-100)、活跃时段(0-100) / Radar chart dimensions per segment
     f_max = max((r["F"] or 0) for r in rfm_list) or 1
     m_max = max((float(r["M"] or 0) for r in rfm_list)) or 1
     radar_datasets = []
@@ -237,7 +238,7 @@ def get_cluster_summary():
             "color": colors[idx % len(colors)],
         })
 
-    # 迁移桑基图：上期(30–60天前) -> 本期(最近30天) 流量，仅统计两期都有订单的用户
+    # 迁移桑基图：上期(30–60天前) -> 本期(最近30天) 流量，仅统计两期都有订单的用户 / Migration Sankey links for users active in both periods
     migration_links = []
     try:
         with conn.cursor() as cur:
@@ -269,7 +270,7 @@ def get_cluster_summary():
                         "to": cur_seg_name,
                         "value": 1,
                     })
-                # 合并相同 (from, to) 的 value
+                # 合并相同 (from, to) 的 value / Merge duplicate (from,to) flows
                 from_to = Counter()
                 for link in migration_links:
                     from_to[(link["from"], link["to"])] += link["value"]
@@ -279,7 +280,7 @@ def get_cluster_summary():
     except Exception:
         migration_links = []
 
-    # 确保所有数值都是原生 Python int/float，方便 Jinja 的 tojson 序列化
+    # 确保所有数值都是原生 Python int/float，方便 Jinja 的 tojson 序列化 / Cast to native int/float for Jinja tojson serialization
     for p in rfm_points:
         p["x"] = int(p.get("x") or 0)
         p["y"] = float(p.get("y") or 0.0)

@@ -13,16 +13,16 @@ bp = Blueprint("gold", __name__)
 @bp.route("/")
 def gold_home():
     rules, frequent_1, frequent_2 = get_rules_summary()
-    # 这里做一些派生数据，供前端展示（图/卡片/列表）
-    # 规则本身已经在 services.apriori 里做过最低支持度 / 置信度过滤，
-    # 这里不过度再筛选，直接展示前 50 条，让数据更丰富。
+    # 这里做一些派生数据，供前端展示（图/卡片/列表） / Build derived datasets for charts/cards/lists
+    # 规则本身已经在 services.apriori 里做过最低支持度 / 置信度过滤， / Base filtering is already handled in services.apriori,
+    # 这里不过度再筛选，直接展示前 50 条，让数据更丰富。 / so we show top 50 directly for richer display.
     top_rules = rules[:50]
     top1 = frequent_1[:5]
     rest1 = frequent_1[5:50]
     top2 = frequent_2[:5]
     rest2 = frequent_2[5:50]
 
-    # 关联网络图：取前 30 个 pair 当边
+    # 关联网络图：取前 30 个 pair 当边 / Association graph: use top 30 pairs as edges
     graph_pairs = frequent_2[:30]
     nodes = {}
     edges = []
@@ -31,13 +31,13 @@ def gold_home():
         nodes[a] = True
         nodes[b] = True
         edges.append({"source": a, "target": b, "support": p["support"], "count": p.get("count", 0)})
-    # 若没有 pair，则用 Top 单品当节点（无连线）
+    # 若没有 pair，则用 Top 单品当节点（无连线） / If no pairs exist, use top single items as isolated nodes
     if not edges:
         for f in frequent_1[:12]:
             nodes[f["item"]] = True
 
-    # 套餐建议卡：只使用 L1（strong_rules）等级的规则来生成
-    # 如果没有任何 L1，则退而求其次，用其它规则里 lift*confidence 最高的几条
+    # 套餐建议卡：只使用 L1（strong_rules）等级的规则来生成 / Bundle cards prefer L1 rules
+    # 如果没有任何 L1，则退而求其次，用其它规则里 lift*confidence 最高的几条 / Fallback to highest lift*confidence rules when no L1 exists
     bundles = []
     seen = set()
 

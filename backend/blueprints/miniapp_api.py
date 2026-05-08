@@ -13,12 +13,12 @@ from db import get_conn
 
 bp = Blueprint("miniapp_api", __name__)
 
-# 将微信小程序所有下单绑定到已有用户（不做微信登录流程）
-# 使用 id 1~87 其中一位，而不是新增 wx_demo_user
+# 将微信小程序所有下单绑定到已有用户（不做微信登录流程） / Bind miniapp orders to existing users (no WeChat auth flow)
+# 使用 id 1~87 其中一位，而不是新增 wx_demo_user / Reuse user IDs 1-87 instead of creating wx_demo_user
 MINIAPP_USER_ID_MIN = 1
 MINIAPP_USER_ID_MAX = 87
 
-# 小程序门店 id -> DB stores.code
+# 小程序门店 id -> DB stores.code / Miniapp store key to DB stores.code mapping
 STORE_CODE_MAP = {
     "kuchai": "kuchai",
     "cheras": "cheras",
@@ -31,11 +31,12 @@ STORE_CODE_MAP = {
 def _gen_order_no(now: datetime.datetime) -> str:
     """
     订单号格式与项目其它订单一致：
-    ORD + YYYYMMDDHHMM + 字母 + 数字
+    Keep order number format consistent with the rest of the project.
+    ORD + YYYYMMDDHHMM + 字母 + 数字 / ORD + YYYYMMDDHHMM + letter + digits
 
-    示例：ORD202603121438E123
+    示例 / Example: ORD202603121438E123
     """
-    # 与既有订单一致（到分钟 + 3 位）
+    # 与既有订单一致（到分钟 + 3 位） / Match existing pattern: minute precision + 3 digits
     return "ORD{}E{:03d}".format(now.strftime("%Y%m%d%H%M"), random.randint(0, 999))
 
 
@@ -72,9 +73,10 @@ def _parse_dt(v) -> str:
 
 def _base_product_name(name: str) -> str:
     """
-    小程序下单商品名可能带选项，如：奥利奥脆脆奶茶（正常冰 / 半糖）
-    数据库里是基础名：奥利奥脆脆奶茶
-    这里做容错：优先截断中文括号内容。
+    小程序下单商品名可能带选项，如：奥利奥脆脆奶茶（正常冰 / 半糖）。
+    Miniapp product names may include options, while DB uses base names.
+    数据库里是基础名：奥利奥脆脆奶茶。
+    We normalize by trimming parenthesized option text first.
     """
     if not name:
         return ""
@@ -89,7 +91,9 @@ def _base_product_name(name: str) -> str:
 def _pick_existing_miniapp_user_id() -> int:
     """
     选择一个已存在的用户（id 1~87 之间）。
+    Pick an existing user in range 1-87.
     若范围内不存在，则退化为选择最小 id 的用户。
+    If none exist in that range, fallback to the smallest user id.
     """
     conn = get_conn()
     try:
@@ -105,7 +109,7 @@ def _pick_existing_miniapp_user_id() -> int:
             )
             rows = cur.fetchall() or []
             if rows:
-                # 固定选择其中一位（避免每次下单都变成不同用户导致报表不稳定）
+                # 固定选择其中一位（避免每次下单都变成不同用户导致报表不稳定） / Use a stable user to keep analytics consistent
                 return int(rows[0]["id"])
 
             cur.execute("SELECT id FROM users ORDER BY id LIMIT 1")
@@ -133,7 +137,7 @@ def _get_store_id(store_key: str | None) -> int | None:
 
 @bp.route("/menu", methods=["GET"])
 def menu():
-    """返回小程序菜单（来自 DB products + categories）。"""
+    """返回小程序菜单（来自 DB products + categories）。 Return miniapp menu from DB products and categories."""
     conn = get_conn()
     try:
         with conn.cursor() as cur:
@@ -171,8 +175,10 @@ def menu():
 @bp.route("/order", methods=["POST"])
 def create_order():
     """
-    小程序下单写入数据库：
+    小程序下单写入数据库。
+    Persist miniapp orders into database tables.
     写 orders / order_items，若 delivery 则写 order_delivery_info。
+    Insert into orders and order_items, plus order_delivery_info for delivery mode.
     """
     payload: dict[str, Any] = request.get_json(silent=True) or {}
     delivery_mode = (payload.get("deliveryMode") or "self").strip()  # self/delivery
@@ -196,7 +202,7 @@ def create_order():
     paid_at = now + datetime.timedelta(minutes=1) if db_status in ("paid", "picked", "done") else None
     finished_at = (paid_at or created_at) + datetime.timedelta(minutes=10) if db_status in ("picked", "done") else None
 
-    # 从 DB 按商品名解析 product_id / price，避免仅依赖前端价格
+    # 从 DB 按商品名解析 product_id / price，避免仅依赖前端价格 / Resolve product_id and price from DB instead of trusting frontend values
     conn = get_conn()
     try:
         with conn.cursor() as cur:
@@ -209,10 +215,10 @@ def create_order():
                     continue
                 qty = int(it.get("qty") or 1)
                 qty = max(1, min(qty, 20))
-                # 先尝试原始名称（可能本身就是 DB 商品名，如：甜甜圈（草莓樱花））
+                # 先尝试原始名称（可能本身就是 DB 商品名，如：甜甜圈（草莓樱花）） / Try raw name first (it may already match DB product name)
                 if raw_name:
                     product_names.append(raw_name)
-                # 再尝试基础名称（去掉选项，如：奥利奥脆脆奶茶（正常冰/半糖）-> 奥利奥脆脆奶茶）
+                # 再尝试基础名称（去掉选项，如：奥利奥脆脆奶茶（正常冰/半糖）-> 奥利奥脆脆奶茶） / Then try base name with options removed
                 if base_name and base_name != raw_name:
                     product_names.append(base_name)
                 normalized_items.append(
@@ -222,7 +228,7 @@ def create_order():
             if not normalized_items:
                 return jsonify({"ok": False, "error": "invalid items"}), 400
 
-            # 去重，避免 IN 参数过长
+            # 去重，避免 IN 参数过长 / Deduplicate to avoid oversized IN parameters
             uniq_names = list(dict.fromkeys([n for n in product_names if n]))
             placeholders = ",".join(["%s"] * len(uniq_names))
             cur.execute(
@@ -249,7 +255,7 @@ def create_order():
                 item_rows.append(
                     {
                         "product_id": int(p["id"]),
-                        # 快照保留小程序原始名称（含选项），便于前端/报表展示
+                        # 快照保留小程序原始名称（含选项），便于前端/报表展示 / Keep original miniapp name snapshot for UI/reporting
                         "product_name_snap": it["raw_name"],
                         "unit_price": unit_price,
                         "qty": qty,
@@ -264,8 +270,8 @@ def create_order():
             paid_amount = payable if db_status != "pending_pay" else Decimal("0.00")
             payment_method = (payload.get("paymentMethod") or "TNG").strip() or "TNG"
 
-            # 订单号格式：与项目其它订单一致（ORDYYYYMMDDHHMME###）
-            # 为避免极小概率重复，这里最多重试几次
+            # 订单号格式：与项目其它订单一致（ORDYYYYMMDDHHMME###） / Keep order_no format consistent with other project orders
+            # 为避免极小概率重复，这里最多重试几次 / Retry a few times to avoid rare collisions
             order_no = _gen_order_no(now)
             for _ in range(5):
                 cur.execute("SELECT 1 FROM orders WHERE order_no=%s LIMIT 1", (order_no,))
@@ -354,7 +360,7 @@ def create_order():
 
 @bp.route("/orders", methods=["GET"])
 def list_orders():
-    """从数据库返回该小程序绑定用户的订单列表（用于小程序订单页持久化显示）。"""
+    """从数据库返回该小程序绑定用户的订单列表（用于小程序订单页持久化显示）。 Return persisted order history for the bound miniapp user."""
     user_id = _pick_existing_miniapp_user_id()
     conn = get_conn()
     try:
@@ -431,7 +437,7 @@ def list_orders():
 
 @bp.route("/order/confirm", methods=["POST"])
 def confirm_order():
-    """确认取餐：将订单状态更新为 done。"""
+    """确认取餐：将订单状态更新为 done。 Confirm pickup by updating order status to done."""
     payload: dict[str, Any] = request.get_json(silent=True) or {}
     order_no = (payload.get("order_no") or payload.get("orderNo") or "").strip()
     if not order_no:
@@ -460,6 +466,7 @@ def confirm_order():
 def pay_order():
     """
     小程序“待支付 -> 已支付”时，更新同一笔订单（不更换 order_no）。
+    When miniapp marks an order as paid, update the same order without changing order_no.
     """
     payload: dict[str, Any] = request.get_json(silent=True) or {}
     order_no = (payload.get("order_no") or payload.get("orderNo") or "").strip()
@@ -480,7 +487,7 @@ def pay_order():
             if not row:
                 return jsonify({"ok": False, "error": "order not found"}), 404
 
-            # 只允许从 pending_pay 变为 paid（避免覆盖其它状态）
+            # 只允许从 pending_pay 变为 paid（避免覆盖其它状态） / Only allow pending_pay -> paid to avoid overriding terminal states
             if row.get("status") != "pending_pay":
                 return jsonify({"ok": False, "error": f"invalid status: {row.get('status')}"}), 400
 
