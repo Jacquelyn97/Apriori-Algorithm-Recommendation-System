@@ -5,6 +5,16 @@
 
 {% block content %}
 <style>
+    .demo-notice {
+        margin-bottom: 16px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: #fff7e6;
+        border: 1px solid #ffd591;
+        color: #8c5a00;
+        font-size: 13px;
+        line-height: 1.5;
+    }
     .toggle-group { background: #f8f9fa; padding: 4px; border-radius: 8px; display: inline-flex; gap: 4px; }
     .toggle-btn { border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; background: transparent; font-size: 13px; color: var(--text-muted); }
     .toggle-btn.active-btn { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--text-main); font-weight: 700; }
@@ -21,6 +31,11 @@
     @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } .chart-row { grid-template-columns: 1fr; } }
     @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr; } }
 </style>
+
+<div class="demo-notice">
+    <strong>Demo Mode:</strong> This dashboard may run with simulated SQLite data for feature demonstration.
+    <strong>演示说明：</strong>当前环境可能使用 SQLite 模拟数据，仅用于功能展示，不代表真实生产经营数据。
+</div>
 
 <div class="kpi-grid">
     <div class="card kpi-card">
